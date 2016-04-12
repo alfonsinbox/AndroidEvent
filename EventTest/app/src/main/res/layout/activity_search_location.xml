@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.alfon.eventtest.SearchLocationActivity">
+
+    <EditText
+        android:id="@+id/edittext_search_locations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_small_margin"
+        android:background="@drawable/solid_edittext"
+        android:elevation="2dp"
+        android:hint="@string/search_locations_edittext_hint"
+        android:padding="@dimen/text_medium_margin"
+        android:singleLine="true" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/existing_locations_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textview_existing_locations_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_small_margin"
+                    android:text="@string/existing_locations_header" />
+
+                <ListView
+                    android:id="@+id/listview_existing_location_suggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="2dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/google_locations_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textview_google_locations_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/text_small_margin"
+                    android:text="@string/google_locations_header" />
+
+                <ListView
+                    android:id="@+id/listview_google_location_suggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="2dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/textview_create_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_edittext"
+        android:elevation="2dp"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:onClick="navigateCreateLocation"
+        android:padding="@dimen/text_medium_margin"
+        android:text="@string/create_location_textview"
+        android:textSize="@dimen/text_header_size" />
+
+</LinearLayout>

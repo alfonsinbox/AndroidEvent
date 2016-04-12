@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.alfon.eventtest.SearchEventsActivity">
+
+    <EditText
+        android:id="@+id/edittext_search_events"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_small_margin"
+        android:background="@drawable/solid_edittext"
+        android:elevation="2dp"
+        android:hint="@string/search_events_edittext_hint"
+        android:padding="@dimen/text_medium_margin"
+        android:singleLine="true" />
+
+    <ListView
+        android:id="@+id/listview_event_suggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

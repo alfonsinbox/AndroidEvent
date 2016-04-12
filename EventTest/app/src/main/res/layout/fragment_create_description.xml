@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:clickable="true"
+    tools:context="com.example.alfon.eventtest.CreateDescriptionFragment">
+
+    <EditText
+        android:id="@+id/edittext_event_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_small_margin"
+        android:hint="@string/event_description_header"
+        android:textSize="@dimen/text_header_size" />
+
+    <RelativeLayout
+        android:id="@+id/finished_adding_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/colored_ripple">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingBottom="@dimen/button_medium_padding"
+            android:paddingLeft="@dimen/button_large_padding"
+            android:paddingRight="@dimen/button_large_padding"
+            android:paddingTop="@dimen/button_medium_padding"
+            android:text="@string/finished_button_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_header_size" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.alfon.eventtest.CreateEventActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/event_name_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/text_small_margin">
+
+                    <EditText
+                        android:id="@+id/edittext_event_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/create_event_edittext_hint"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_begins_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectStartDate"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_begins_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_begins_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_ends_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectEndDate"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_ends_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_ends_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_location_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectPlace"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_location_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_location_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/event_add_description_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="addDescription"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/event_description_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_description_value"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="@dimen/text_large_margin"
+                        android:lines="1"
+                        android:ellipsize="end"
+                        android:gravity="right"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_header_size" />
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_categories_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectCategories"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_categories_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_categories_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_hosts_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectHosts"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_hosts_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_hosts_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/event_is_private_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_is_private_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <Switch
+                        android:id="@+id/event_is_private_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <RelativeLayout
+            android:id="@+id/create_event_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/colored_ripple"
+            android:onClick="createEvent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:paddingBottom="@dimen/button_medium_padding"
+                android:paddingLeft="@dimen/button_large_padding"
+                android:paddingRight="@dimen/button_large_padding"
+                android:paddingTop="@dimen/button_medium_padding"
+                android:text="@string/create_event_button"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_header_size" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/creating_event_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:paddingBottom="@dimen/button_medium_padding"
+                android:paddingLeft="@dimen/button_large_padding"
+                android:paddingRight="@dimen/button_large_padding"
+                android:paddingTop="@dimen/button_medium_padding" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/description_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>

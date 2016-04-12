@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="user"
+            type="com.example.alfon.eventtest.User" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context="com.example.alfon.eventtest.UserOverviewActivity">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:id="@+id/textview_sign_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:onClick="signOut"/>
+
+            <ImageView
+                android:id="@+id/profile_picture"
+                android:layout_width="@dimen/profile_picture_diameter"
+                android:layout_height="@dimen/profile_picture_diameter"
+                android:src="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/profile_place"
+                android:layout_marginLeft="@dimen/text_small_margin"
+                android:layout_toRightOf="@+id/profile_picture"
+                android:text="@{user.fullName}"
+                android:textSize="@dimen/text_header_size"
+                tools:text="John Doe" />
+
+            <!-- Maybe avoid using this (sensitive information)
+            <TextView
+                android:id="@+id/profile_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/profile_picture"
+                android:layout_alignBottom="@+id/profile_picture"
+                android:textSize="@dimen/text_sub_header_size"
+                android:layout_marginLeft="@dimen/text_small_margin"
+                android:layout_marginBottom="@dimen/text_small_margin"
+                android:text="@{user.birthDate}"/> -->
+
+            <TextView
+                android:id="@+id/profile_place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/profile_picture"
+                android:layout_marginBottom="@dimen/text_small_margin"
+                android:layout_marginLeft="@dimen/text_small_margin"
+                android:layout_toRightOf="@+id/profile_picture"
+                android:text="@{user.username}"
+                android:textSize="@dimen/text_sub_header_size" />
+
+        </RelativeLayout>
+
+        <!-- Just a divider -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorBlackDivider" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:onClick="setUserInterests"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="Intressen"
+                android:textSize="@dimen/text_header_size" />
+
+        </RelativeLayout>
+
+        <!-- Just a divider -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorBlackDivider" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="Kontakter"
+                android:textSize="@dimen/text_header_size" />
+
+        </RelativeLayout>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs_user_events"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/tab_pages_user_events"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+</layout>
