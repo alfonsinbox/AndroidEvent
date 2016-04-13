@@ -18,7 +18,9 @@ import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -31,8 +33,7 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class MyEventsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     Activity activity;
     MobileServiceClient mClient;
     GridView gridViewEvents;
@@ -52,7 +53,6 @@ public class MyEventsFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment MyEventsFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static MyEventsFragment newInstance() {
         MyEventsFragment fragment = new MyEventsFragment();
         Bundle args = new Bundle();
@@ -80,6 +80,7 @@ public class MyEventsFragment extends Fragment {
                 Gson gson = new GsonBuilder().registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer()).create();
                 List<Event> events = gson.fromJson(response.getContent(), new TypeToken<List<Event>>() {
                 }.getType());
+
                 EventsListAdapter eventsListAdapter = new EventsListAdapter(activity, R.layout.grid_item_events, events);
                 gridViewEvents.setAdapter(eventsListAdapter);
                 gridViewEvents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
