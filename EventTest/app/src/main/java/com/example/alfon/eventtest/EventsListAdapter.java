@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -35,10 +37,19 @@ public class EventsListAdapter extends ArrayAdapter<Event> {
         Event event = getItem(position);
 
         if (event != null) {
-            TextView listItemDescription = (TextView) v.findViewById(R.id.description);
+            TextView gridItemDescription = (TextView) v.findViewById(R.id.description);
+            TextView gridItemDate = (TextView) v.findViewById(R.id.event_date_overview);
+            TextView gridItemMonth = (TextView) v.findViewById(R.id.event_month_overview);
 
-            if (listItemDescription != null) {
-                listItemDescription.setText(event.name);
+            if (gridItemDescription != null) {
+                gridItemDescription.setText(event.name);
+            }
+            if (gridItemDate != null) {
+                gridItemDate.setText(String.valueOf(event.startTime.get(Calendar.DATE)));
+            }
+            if (gridItemMonth != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM");
+                gridItemMonth.setText(sdf.format(event.startTime.get(Calendar.MONTH)));
             }
         }
 
