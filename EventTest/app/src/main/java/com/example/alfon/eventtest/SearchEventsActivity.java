@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.FutureCallback;
@@ -45,6 +46,7 @@ public class SearchEventsActivity extends AppCompatActivity {
 
     EditText editTextSearchBox;
     ListView listViewEventSuggestions;
+    ProgressBar searchingEventProgress;
 
     String searchString;
     ListenableFuture<ServiceFilterResponse> eventListenableFuture;
@@ -63,6 +65,7 @@ public class SearchEventsActivity extends AppCompatActivity {
 
         editTextSearchBox = (EditText) findViewById(R.id.edittext_search_events);
         listViewEventSuggestions = (ListView) findViewById(R.id.listview_event_suggestions);
+        searchingEventProgress = (ProgressBar) findViewById(R.id.searching_events_progress);
 
         editTextSearchBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,11 +95,16 @@ public class SearchEventsActivity extends AppCompatActivity {
     }
 
     private void searchEvents(String query){
+        listViewEventSuggestions.setAdapter(null);
+        searchingEventProgress.setVisibility(View.VISIBLE);
+
         if(eventListenableFuture != null) {
             eventListenableFuture.cancel(true);
         }
+
         if(query.equals("")){
             listViewEventSuggestions.setAdapter(null);
+            searchingEventProgress.setVisibility(View.GONE);
             return;
         }
 
@@ -105,6 +113,7 @@ public class SearchEventsActivity extends AppCompatActivity {
         Futures.addCallback(eventListenableFuture, new FutureCallback<ServiceFilterResponse>() {
             @Override
             public void onSuccess(ServiceFilterResponse result) {
+                searchingEventProgress.setVisibility(View.GONE);
                 System.out.println("FUCKING SUCCESS!!!" + result.getContent());
                 Gson gson = new GsonBuilder().registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer()).create();
                 List<Event> eventSearchResults = gson.fromJson(result.getContent(), new TypeToken<List<Event>>() {
@@ -125,6 +134,7 @@ public class SearchEventsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Throwable t) {
+                searchingEventProgress.setVisibility(View.GONE);
                 System.out.println("FUCKING FAILURE!!!");
             }
         });

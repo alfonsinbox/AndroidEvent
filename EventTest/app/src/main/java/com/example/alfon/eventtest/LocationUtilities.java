@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.*;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Pair;
 
@@ -77,16 +78,33 @@ public class LocationUtilities {
         String provider = locationManager.getBestProvider(criteria, true);
         boolean a = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         boolean b = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
-
+        System.out.println(provider);
 
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
         }
 
+        locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                    }
+                    @Override
+                    public void onProviderEnabled(String provider) {
+                    }
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                    }
+                    @Override
+                    public void onLocationChanged(final Location location) {
+                    }
+                });
+
         Location userLocation = locationManager.getLastKnownLocation(provider);
         if (userLocation == null) {
             throw new Exception("Couldn't get location");
         }
+        System.out.println(String.format("%s, %s", String.valueOf(userLocation.getLatitude()), String.valueOf(userLocation.getLongitude())));
         return userLocation;
     }
 

@@ -17,9 +17,23 @@
         android:padding="@dimen/text_medium_margin"
         android:singleLine="true" />
 
-    <ListView
-        android:id="@+id/listview_event_suggestions"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:visibility="gone"
+            android:id="@+id/searching_events_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:indeterminate="true" />
+
+        <ListView
+            android:id="@+id/listview_event_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
 
 </LinearLayout>
