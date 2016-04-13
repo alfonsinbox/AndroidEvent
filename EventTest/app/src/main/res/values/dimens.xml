@@ -24,4 +24,6 @@
     <dimen name="button_medium_padding">24dp</dimen>
     <dimen name="button_large_padding">48dp</dimen>
 
+    <dimen name="gridview_events_border">1dp</dimen>
+
 </resources>

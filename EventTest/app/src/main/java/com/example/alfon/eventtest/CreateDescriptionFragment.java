@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 
@@ -20,11 +21,9 @@ import android.widget.RelativeLayout;
  * create an instance of this fragment.
  */
 public class CreateDescriptionFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String CURRENT_DESCRIPTION = "param1";
 
-    // TODO: Rename and change types of parameters
+    private static final String CURRENT_DESCRIPTION = "current description";
+
     private String mCurrentDescription;
 
     private OnFragmentInteractionListener mListener;
@@ -55,6 +54,7 @@ public class CreateDescriptionFragment extends Fragment {
         if (getArguments() != null) {
             mCurrentDescription = getArguments().getString(CURRENT_DESCRIPTION);
         }
+
     }
 
     @Override
@@ -64,6 +64,10 @@ public class CreateDescriptionFragment extends Fragment {
                 container, false);
         RelativeLayout buttonFinished = (RelativeLayout) view.findViewById(R.id.finished_adding_description);
         EditText descriptionEditText = (EditText) view.findViewById(R.id.edittext_event_description);
+
+        descriptionEditText.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(descriptionEditText, InputMethodManager.SHOW_IMPLICIT);
 
         buttonFinished.setOnClickListener(new View.OnClickListener() {
             @Override

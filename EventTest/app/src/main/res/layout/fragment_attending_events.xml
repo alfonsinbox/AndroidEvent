@@ -8,7 +8,10 @@
         android:id="@+id/gridview_events"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:numColumns="3" />
+        android:numColumns="3"
+        android:horizontalSpacing="@dimen/gridview_events_border"
+        android:verticalSpacing="@dimen/gridview_events_border"
+        android:background="@color/colorGridviewBorder"/>
 
     <ProgressBar
         android:id="@+id/loading_events_progress"

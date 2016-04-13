@@ -48,7 +48,7 @@ public class EventsListAdapter extends ArrayAdapter<Event> {
                 gridItemDate.setText(String.valueOf(event.startTime.get(Calendar.DATE)));
             }
             if (gridItemMonth != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM");
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMM");
                 gridItemMonth.setText(sdf.format(event.startTime.get(Calendar.MONTH)));
             }
         }

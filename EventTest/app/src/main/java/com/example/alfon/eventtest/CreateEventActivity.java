@@ -164,8 +164,10 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
     public void addDescription(View view){
         descriptionFragment = CreateDescriptionFragment.newInstance(((TextView) findViewById(R.id.event_description_value)).getText().toString());
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.description_fragment_container, descriptionFragment, DESCRIPTION_FRAGMENT_TAG);
-        fragmentTransaction.commit();
+        fragmentTransaction
+                .add(R.id.description_fragment_container, descriptionFragment, DESCRIPTION_FRAGMENT_TAG)
+                .addToBackStack("")
+                .commit();
     }
 
     @Override
@@ -299,7 +301,7 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.RESULT_HIDDEN);
         }
     }
 }
