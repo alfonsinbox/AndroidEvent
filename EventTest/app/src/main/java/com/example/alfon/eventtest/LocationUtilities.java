@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by alfon on 2016-02-27.
  */
-public class LocationUtilities {
+public class LocationUtilities extends Activity {
     // Will get locations from a query and lat/lon
     public static void getLocationSuggestions(Activity activity, String query, String latitude, String longitude, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback) {
         List<Pair<String, String>> params = new ArrayList<>();
@@ -72,42 +72,6 @@ public class LocationUtilities {
         return mClient.invokeApi("location/suggestions", null, "POST", headers, params);
     }
 
-    public static android.location.Location getUserLocation(Activity activity) throws Exception {
-        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-        boolean a = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
-        boolean b = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
-        System.out.println(provider);
-
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-
-        locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {
-                    }
-                    @Override
-                    public void onProviderEnabled(String provider) {
-                    }
-                    @Override
-                    public void onProviderDisabled(String provider) {
-                    }
-                    @Override
-                    public void onLocationChanged(final Location location) {
-                    }
-                });
-
-        Location userLocation = locationManager.getLastKnownLocation(provider);
-        if (userLocation == null) {
-            throw new Exception("Couldn't get location");
-        }
-        System.out.println(String.format("%s, %s", String.valueOf(userLocation.getLatitude()), String.valueOf(userLocation.getLongitude())));
-        return userLocation;
-    }
-
     public void createLocation(Activity activity, String name, String latitude, String longitude, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback) {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(Pair.create("name", name));
@@ -131,4 +95,20 @@ public class LocationUtilities {
 
     }
 
+    public static android.location.Location getUserLocation(Activity activity) throws Exception {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, false);
+        boolean a = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        boolean b = (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        System.out.println(provider + a + b);
+
+        Location userLocation = locationManager.getLastKnownLocation(provider);
+
+        if (userLocation == null) {
+            throw new Exception("Couldn't get location");
+        }
+        System.out.println(String.format("%s, %s", String.valueOf(userLocation.getLatitude()), String.valueOf(userLocation.getLongitude())));
+        return userLocation;
+    }
 }

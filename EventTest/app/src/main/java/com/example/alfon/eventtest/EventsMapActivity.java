@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.*;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
     AuthUtilities authUtilities;
     MobileServiceClient mClient;
     android.location.Location userLocation;
+    GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +56,21 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
 
         activity = this;
 
-        try {
-            userLocation = LocationUtilities.getUserLocation(activity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            userLocation = new Location("dummyprovider");
-            userLocation.setLatitude(0);
-            userLocation.setLongitude(0);
-        }
-
         authUtilities = new AuthUtilities();
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
+
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        } else {
+            try {
+                userLocation = LocationUtilities.getUserLocation(activity);
+            } catch (Exception e) {
+                e.printStackTrace();
+                userLocation = new Location("dummyprovider");
+                userLocation.setLatitude(0);
+                userLocation.setLongitude(0);
+            }
+        }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -73,10 +79,14 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     /**
      * Called when map is finished loading
+     *
      * @param map
      */
     @Override
     public void onMapReady(final GoogleMap map) {
+
+        mMap = map;
+
         ServiceFilterResponseCallback serviceFilterResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
@@ -84,7 +94,7 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
                 Gson gson = new GsonBuilder().registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer()).create();
                 List<Event> events = gson.fromJson(response.getContent(), new TypeToken<List<Event>>() {
                 }.getType());
-                for (Event event: events) {
+                for (Event event : events) {
                     Marker marker = map.addMarker(new MarkerOptions()
                             .position(new LatLng(event.location.latitude, event.location.longitude))
                             .title(event.name));
@@ -103,14 +113,15 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
                 });
             }
         };
-        
-        new EventUtilities().getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
-                String.valueOf(userLocation.getLongitude()), "8000", mClient, serviceFilterResponseCallback);
 
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
             return;
         }
+
+        new EventUtilities().getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
+                String.valueOf(userLocation.getLongitude()), "8000", mClient, serviceFilterResponseCallback);
+
 
         map.setMyLocationEnabled(true);
 
@@ -125,8 +136,42 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
         map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void navigateEventSearch(View view){
+    public void navigateEventSearch(View view) {
         Intent intent = new Intent(activity, SearchEventsActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        userLocation = LocationUtilities.getUserLocation(activity);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        userLocation = new Location("dummyprovider");
+                        userLocation.setLatitude(0);
+                        userLocation.setLongitude(0);
+                    }
+
+                    mMap.setMyLocationEnabled(true);
+
+                    // Show selected location on Map
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
+                            .zoom(15)                   // Sets the zoom
+                            .bearing(0)                // Sets the orientation of the camera to east
+                            .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+                break;
+            }
+        }
     }
 }

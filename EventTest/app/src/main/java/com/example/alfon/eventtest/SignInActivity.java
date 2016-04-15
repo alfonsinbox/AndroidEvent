@@ -1,7 +1,11 @@
 package com.example.alfon.eventtest;
 
+import android.*;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,7 +30,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
         activity = this;
 
         if (!AuthUtilities.getLocalToken(activity).equals("")) {
@@ -56,6 +60,20 @@ public class SignInActivity extends AppCompatActivity {
 
         }
 
+        System.out.println("BEFORE ASKING PERMISSION!");
+
+        if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
+
+        System.out.println("AFTER ASKING PERMISSION!");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        System.out.println("GOT RESPONSE!");
+        System.out.println("GOT RESPONSE NOW THIS AS WELL!");
     }
 
     public void signIn(View view) {
