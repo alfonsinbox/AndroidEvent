@@ -1,14 +1,20 @@
 package com.example.alfon.eventtest;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.NotificationCompat;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
+import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.microsoft.windowsazure.notifications.NotificationsHandler;
 
 /**
@@ -19,17 +25,33 @@ public class MyNotificationsHandler extends NotificationsHandler {
     public static final int NOTIFICATION_ID = 1;
 
     @Override
-    public void onRegistered(Context context, final String gcmRegistrationId) {
+    public void onRegistered(final Context context, final String gcmRegistrationId) {
         super.onRegistered(context, gcmRegistrationId);
 
         new AsyncTask<Void, Void, Void>() {
 
             protected Void doInBackground(Void... params) {
                 try {
-                    GlobalApplication.mClient.getPush().register(gcmRegistrationId);
+                    ServiceFilterResponseCallback finishedRegisterResponseCallback = new ServiceFilterResponseCallback() {
+                        @Override
+                        public void onResponse(ServiceFilterResponse response, Exception exception) {
+                            if (exception != null) {
+                                exception.printStackTrace();
+                                return;
+                            }
+                            System.out.println(response.getContent());
+                            String registrationId = response.getContent();
+                            SharedPreferences storedUserPreferences = context.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = storedUserPreferences.edit();
+                            editor.putString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, gcmRegistrationId);
+                            editor.putString(GlobalApplication.PREFERENCE_REGISTRATION_ID, registrationId);
+                            editor.commit();
+                        }
+                    };
+
+                    PushUtilities.registerGcmId((Activity) context, gcmRegistrationId, GlobalApplication.mClient, finishedRegisterResponseCallback);
                     return null;
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     // handle error
                 }
                 return null;

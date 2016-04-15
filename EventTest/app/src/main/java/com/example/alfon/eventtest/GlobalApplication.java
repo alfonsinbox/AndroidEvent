@@ -17,6 +17,9 @@ public class GlobalApplication extends Application {
     Activity activity;
     public static MobileServiceClient mClient;
     public static final String SENDER_ID = "345618100514";
+    public static final String PREFERENCES_USERSETTINGS = "UserSettings";
+    public static final String PREFERENCE_GCM_REGISTRATION_ID = "PreferenceGcmRegId";
+    public static final String PREFERENCE_REGISTRATION_ID = "PreferenceRegId";
 
     @Override
     public void onCreate() {
