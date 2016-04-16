@@ -2,6 +2,9 @@ package com.example.alfon.eventtest;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,6 +15,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -61,18 +67,6 @@ public class SearchLocationActivity extends AppCompatActivity {
         googleLocationsContainer = (LinearLayout)findViewById(R.id.google_locations_container);
         existingLocationsContainer = (LinearLayout)findViewById(R.id.existing_locations_container);
 
-
-        try {
-            userLocation = LocationUtilities.getUserLocation(activity);
-        } catch (Exception e) {
-            userLocation = new android.location.Location("dummyprovider");
-            userLocation.setLatitude(0);
-            userLocation.setLongitude(0);
-        }
-
-        latitude = String.valueOf(userLocation.getLatitude());
-        longitude = String.valueOf(userLocation.getLongitude());
-
         editTextSearchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -109,6 +103,23 @@ public class SearchLocationActivity extends AppCompatActivity {
                 });
             }
         });
+
+        if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+            return;
+        }
+
+        try {
+            userLocation = LocationUtilities.getUserLocation(activity);
+        } catch (Exception e) {
+            userLocation = new android.location.Location("dummyprovider");
+            userLocation.setLatitude(0);
+            userLocation.setLongitude(0);
+        }
+
+        latitude = String.valueOf(userLocation.getLatitude());
+        longitude = String.valueOf(userLocation.getLongitude());
+
 
         //Initial request, doesn't require a search query
         locationSuggestionsListenableFuture = LocationUtilities.getLocationSuggestionsFuture(activity,
@@ -193,5 +204,50 @@ public class SearchLocationActivity extends AppCompatActivity {
             }
         };
         LocationUtilities.getLocationDetails(activity, placeId, mClient, locationRetrievedResponseCallback);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    try {
+                        userLocation = LocationUtilities.getUserLocation(activity);
+                    } catch (Exception e) {
+                        userLocation = new android.location.Location("dummyprovider");
+                        userLocation.setLatitude(0);
+                        userLocation.setLongitude(0);
+                    }
+
+                    latitude = String.valueOf(userLocation.getLatitude());
+                    longitude = String.valueOf(userLocation.getLongitude());
+
+
+                    //Initial request, doesn't require a search query
+                    locationSuggestionsListenableFuture = LocationUtilities.getLocationSuggestionsFuture(activity,
+                            latitude, longitude, mClient);
+
+                    Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                        @Override
+                        public void onSuccess(ServiceFilterResponse result) {
+                            populateListsFromResponse(result.getContent());
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+
+                        }
+                    });
+
+                }
+                break;
+            }
+        }
+
     }
 }

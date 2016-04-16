@@ -1,8 +1,12 @@
 package com.example.alfon.eventtest;
 
+import android.*;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -30,9 +34,10 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
     MobileServiceClient mClient;
 
     Location selectedLocation;
+    android.location.Location userLocation;
 
     TextView textViewSearchBox;
-    GoogleMap map;
+    GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +52,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
 
         textViewSearchBox = (TextView) findViewById(R.id.textview_search_locations);
 
-        selectedLocation = (Location)getIntent().getSerializableExtra("location");
+        selectedLocation = (Location) getIntent().getSerializableExtra("location");
         if (selectedLocation != null) {
             textViewSearchBox.setText(selectedLocation.longName);
         }
@@ -59,26 +64,39 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        if (selectedLocation == null){
-            android.location.Location location = null;
+        mMap = googleMap;
+
+        if (selectedLocation == null) {
+
+            if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+                return;
+            }
+
             try {
-                location = LocationUtilities.getUserLocation(activity);
+                userLocation = LocationUtilities.getUserLocation(activity);
             } catch (Exception e) {
                 e.printStackTrace();
+                userLocation = new android.location.Location("dummyprovider");
+                userLocation.setLatitude(0);
+                userLocation.setLongitude(0);
             }
+
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to Mountain View
+                    .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
                     .zoom(15)                   // Sets the zoom
                     .bearing(0)                // Sets the orientation of the camera to east
                     .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
-            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             return;
         }
+
         // Create marker on map
-        map.clear();
-        Marker marker = map.addMarker(new MarkerOptions()
+        mMap.clear();
+
+        Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(selectedLocation.latitude, selectedLocation.longitude)));
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -87,7 +105,8 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
                 .bearing(0)                // Sets the orientation of the camera to east
                 .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
@@ -96,13 +115,13 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
 
             selectedLocation = (Location) data.getSerializableExtra("location");
 
-            Toast.makeText(activity,new Gson().toJson(selectedLocation), Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, new Gson().toJson(selectedLocation), Toast.LENGTH_SHORT).show();
 
-            ((TextView)findViewById(R.id.textview_search_locations)).setText(selectedLocation.longName);
+            ((TextView) findViewById(R.id.textview_search_locations)).setText(selectedLocation.longName);
 
             // Create marker on map
-            map.clear();
-            Marker marker = map.addMarker(new MarkerOptions()
+            mMap.clear();
+            Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(selectedLocation.latitude, selectedLocation.longitude)));
 
             // Show selected location on Map
@@ -113,16 +132,16 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
                     .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
 
-            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
 
-    public void navigateLocationSearch(View view){
+    public void navigateLocationSearch(View view) {
         Intent intent = new Intent(this, SearchLocationActivity.class);
         startActivityForResult(intent, 0);
     }
 
-    public void returnSelectedLocation(View view){
+    public void returnSelectedLocation(View view) {
         if (selectedLocation == null) {
             return;
         }
@@ -130,5 +149,37 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
         result.putExtra("selectedLocation", selectedLocation);
         setResult(Activity.RESULT_OK, result);
         finish();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    try {
+                        userLocation = LocationUtilities.getUserLocation(activity);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        userLocation = new android.location.Location("dummyprovider");
+                        userLocation.setLatitude(0);
+                        userLocation.setLongitude(0);
+                    }
+
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
+                            .zoom(15)                   // Sets the zoom
+                            .bearing(0)                // Sets the orientation of the camera to east
+                            .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+                break;
+            }
+        }
     }
 }
