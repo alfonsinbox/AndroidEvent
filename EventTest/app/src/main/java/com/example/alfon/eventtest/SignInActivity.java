@@ -3,8 +3,11 @@ package com.example.alfon.eventtest;
 import android.*;
 import android.app.Activity;
 import android.app.Notification;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +29,8 @@ public class SignInActivity extends AppCompatActivity {
 
     EditText usernameEditText;
     EditText passwordEditText;
+    String gcmRegistrationId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +39,7 @@ public class SignInActivity extends AppCompatActivity {
         mClient = GlobalApplication.getmClient();
         activity = this;
 
+        // Check if user is logged in
         if (!AuthUtilities.getLocalToken(activity).equals("")) {
             ServiceFilterResponseCallback tokenRefreshedResponseCallback = new ServiceFilterResponseCallback() {
                 @Override
@@ -44,16 +50,17 @@ public class SignInActivity extends AppCompatActivity {
                         passwordEditText = (EditText) findViewById(R.id.edittext_password);
                         return;
                     }
-                    String token = new Gson().fromJson(response.getContent(), JsonObject.class).get("token").getAsString();
+                    String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
                     AuthUtilities.saveToken(token, activity);
                     Intent intent = new Intent(activity, MainActivity.class);
                     startActivity(intent);
                     finish();
                 }
             };
+
+            // Refresh token
             AuthUtilities.refreshToken(activity, mClient, tokenRefreshedResponseCallback);
         } else {
-
             setContentView(R.layout.activity_sign_in);
 
             usernameEditText = (EditText) findViewById(R.id.edittext_username);
@@ -63,13 +70,33 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     public void signIn(View view) {
-        final Activity activity = this;
+        System.out.println("PREVIOUS TOKEN: " + AuthUtilities.getLocalToken(activity));
 
-        String s = AuthUtilities.getLocalToken(activity);
+        final ServiceFilterResponseCallback finishedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
+            @Override
+            public void onResponse(ServiceFilterResponse response, Exception exception) {
+                if (exception != null) {
+                    exception.printStackTrace();
+                    return;
+                }
 
-        System.out.println("I FOUND A TOKEN! " + AuthUtilities.getLocalToken(activity));
+                String registrationId = new Gson().fromJson(response.getContent(), JsonObject.class).get("registration_id").getAsString();
 
-        ServiceFilterResponseCallback serviceFilterResponseCallback = new ServiceFilterResponseCallback() {
+                System.out.println(response.getContent());
+                SharedPreferences storedUserPreferences = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = storedUserPreferences.edit();
+                editor.putString(GlobalApplication.PREFERENCE_REGISTRATION_ID, registrationId);
+                editor.commit();
+
+                // If both requests went well, user is logged in
+                Intent intent = new Intent(activity, MainActivity.class);
+                startActivity(intent);
+                // Finish activity so you can't navigate back to it
+                finish();
+            }
+        };
+
+        ServiceFilterResponseCallback gotUserTokenResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
                 if (exception != null) {
@@ -80,17 +107,18 @@ public class SignInActivity extends AppCompatActivity {
                 String token = new Gson().fromJson(response.getContent(), JsonObject.class).get("token").getAsString();
 
                 try {
-                    System.out.println("On Success");
-                    System.out.println("TOKEN WAS RETRIEVED! " + token);
+                    System.out.println("TOKEN WAS RETRIEVED: " + token);
                     AuthUtilities.saveToken(token, activity);
 
                     if (!AuthUtilities.getLocalToken(activity).equals("")) {
-                        Intent intent = new Intent(activity, MainActivity.class);
-                        startActivity(intent);
-                        // Finish activity so you can't navigate back to it
-                        finish();
-                    } else {
 
+                        // Register device for push notifications
+                        gcmRegistrationId = activity
+                                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                                .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
+
+                        //System.out.println(gcmRegistrationId);
+                        NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
                     }
 
                 } catch (Exception ex) {
@@ -99,8 +127,7 @@ public class SignInActivity extends AppCompatActivity {
             }
         };
 
-        //authUtilities.requestToken(mClient, "admin", "password111", serviceFilterResponseCallback);
-        AuthUtilities.requestToken(mClient, usernameEditText.getText().toString(), passwordEditText.getText().toString(), serviceFilterResponseCallback);
+        AuthUtilities.requestToken(mClient, usernameEditText.getText().toString(), passwordEditText.getText().toString(), gotUserTokenResponseCallback);
     }
 
     public void navigateCreateAccount(View view) {
