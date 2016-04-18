@@ -1,6 +1,7 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -75,5 +76,9 @@ public class AuthUtilities {
 
     public static String getLocalToken(Activity activity) {
         return activity.getSharedPreferences("UserSettings", 0).getString("token", "");
+    }
+
+    public static String getLocalToken(Context context) {
+        return context.getSharedPreferences("UserSettings", 0).getString("token", "");
     }
 }

@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         activity = this;
+        System.out.println("DIS IS APP ID: " + MobileServiceApplication.getInstallationId(this.getApplicationContext()));
         System.out.println(activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getString(GlobalApplication.PREFERENCE_REGISTRATION_ID, ""));
     }
 

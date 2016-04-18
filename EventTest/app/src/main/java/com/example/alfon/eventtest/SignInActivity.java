@@ -2,6 +2,7 @@ package com.example.alfon.eventtest;
 
 import android.*;
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -59,21 +60,6 @@ public class SignInActivity extends AppCompatActivity {
             passwordEditText = (EditText) findViewById(R.id.edittext_password);
 
         }
-
-        System.out.println("BEFORE ASKING PERMISSION!");
-
-        if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-
-        System.out.println("AFTER ASKING PERMISSION!");
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        System.out.println("GOT RESPONSE!");
-        System.out.println("GOT RESPONSE NOW THIS AS WELL!");
     }
 
     public void signIn(View view) {
