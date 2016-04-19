@@ -65,6 +65,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
 
         if (selectedLocation == null) {
 

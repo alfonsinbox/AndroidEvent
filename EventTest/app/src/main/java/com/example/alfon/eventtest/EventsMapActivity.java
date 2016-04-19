@@ -59,18 +59,6 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
         authUtilities = new AuthUtilities();
         mClient = GlobalApplication.getmClient();
 
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        } else {
-            try {
-                userLocation = LocationUtilities.getUserLocation(activity);
-            } catch (Exception e) {
-                e.printStackTrace();
-                userLocation = new Location("dummyprovider");
-                userLocation.setLatitude(0);
-                userLocation.setLongitude(0);
-            }
-        }
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -84,8 +72,8 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
      */
     @Override
     public void onMapReady(final GoogleMap map) {
-
         mMap = map;
+        mMap.getUiSettings().setRotateGesturesEnabled(false);
 
         ServiceFilterResponseCallback serviceFilterResponseCallback = new ServiceFilterResponseCallback() {
             @Override
@@ -114,9 +102,18 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
             }
         };
 
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
             return;
+        }
+
+        try {
+            userLocation = LocationUtilities.getUserLocation(activity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            userLocation = new Location("dummyprovider");
+            userLocation.setLatitude(0);
+            userLocation.setLongitude(0);
         }
 
         new EventUtilities().getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
