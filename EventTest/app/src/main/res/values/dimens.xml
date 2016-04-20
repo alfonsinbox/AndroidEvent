@@ -21,6 +21,7 @@
     <dimen name="fab_normal_margin">16dp</dimen>
 
     <dimen name="button_large_margin">36dp</dimen>
+    <dimen name="button_small_padding">12dp</dimen>
     <dimen name="button_medium_padding">24dp</dimen>
     <dimen name="button_large_padding">48dp</dimen>
 

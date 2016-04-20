@@ -30,12 +30,43 @@
             android:inputType="textPassword"
             style="@style/StandardEditText"/>
 
-        <Button
-            android:id="@+id/button_sign_in"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="signIn"
-            android:text="@string/sign_in_button_text"/>
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/button_sign_in"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/colored_ripple"
+                android:padding="@dimen/button_medium_padding"
+                android:onClick="signIn">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/sign_in_button_text"
+                    android:textAllCaps="true"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/signing_in_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/button_small_padding"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
 
 
     </LinearLayout>

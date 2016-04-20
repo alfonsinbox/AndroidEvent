@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -31,6 +32,8 @@ public class SignInActivity extends AppCompatActivity {
     EditText passwordEditText;
     String gcmRegistrationId;
 
+    RelativeLayout signInButton;
+    RelativeLayout signingInProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,17 +69,24 @@ public class SignInActivity extends AppCompatActivity {
             usernameEditText = (EditText) findViewById(R.id.edittext_username);
             passwordEditText = (EditText) findViewById(R.id.edittext_password);
 
+            signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
+            signingInProgress = (RelativeLayout) findViewById(R.id.signing_in_progress);
         }
     }
 
     public void signIn(View view) {
         System.out.println("PREVIOUS TOKEN: " + AuthUtilities.getLocalToken(activity));
 
+        signInButton.setVisibility(View.GONE);
+        signingInProgress.setVisibility(View.VISIBLE);
+
         final ServiceFilterResponseCallback finishedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
                 if (exception != null) {
                     exception.printStackTrace();
+                    signInButton.setVisibility(View.VISIBLE);
+                    signingInProgress.setVisibility(View.GONE);
                     return;
                 }
 
@@ -101,6 +111,8 @@ public class SignInActivity extends AppCompatActivity {
             public void onResponse(ServiceFilterResponse response, Exception exception) {
                 if (exception != null) {
                     exception.printStackTrace();
+                    signInButton.setVisibility(View.VISIBLE);
+                    signingInProgress.setVisibility(View.GONE);
                     return;
                 }
 
@@ -117,7 +129,6 @@ public class SignInActivity extends AppCompatActivity {
                                 .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
                                 .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
 
-                        //System.out.println(gcmRegistrationId);
                         NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
                     }
 
