@@ -77,7 +77,7 @@ public class SignInActivity extends AppCompatActivity {
     public void signIn(View view) {
         System.out.println("PREVIOUS TOKEN: " + AuthUtilities.getLocalToken(activity));
 
-        signInButton.setVisibility(View.GONE);
+        signInButton.setVisibility(View.INVISIBLE);
         signingInProgress.setVisibility(View.VISIBLE);
 
         final ServiceFilterResponseCallback finishedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
@@ -86,7 +86,7 @@ public class SignInActivity extends AppCompatActivity {
                 if (exception != null) {
                     exception.printStackTrace();
                     signInButton.setVisibility(View.VISIBLE);
-                    signingInProgress.setVisibility(View.GONE);
+                    signingInProgress.setVisibility(View.INVISIBLE);
                     return;
                 }
 
@@ -112,7 +112,7 @@ public class SignInActivity extends AppCompatActivity {
                 if (exception != null) {
                     exception.printStackTrace();
                     signInButton.setVisibility(View.VISIBLE);
-                    signingInProgress.setVisibility(View.GONE);
+                    signingInProgress.setVisibility(View.INVISIBLE);
                     return;
                 }
 

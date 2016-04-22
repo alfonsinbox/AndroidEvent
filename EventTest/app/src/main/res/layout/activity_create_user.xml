@@ -28,6 +28,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
+                    android:inputType="textPersonName"
                     android:hint="@string/firstname_edittext_hint" />
 
                 <EditText
@@ -35,6 +36,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
+                    android:inputType="textPersonName"
                     android:hint="@string/lastname_edittext_hint" />
 
             </LinearLayout>
