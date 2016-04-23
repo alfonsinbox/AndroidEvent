@@ -7,6 +7,7 @@
     <string name="mainpage_navigate_search">Sök</string>
     <string name="mainpage_navigate_create_event">Skapa event</string>
     <string name="mainpage_sign_out">Logga ut</string>
+    <string name="could_not_sign_out_toast">Kunde inte logga ut</string>
 
     <!--Strings for SignInActivity-->
     <string name="username_edittext_hint">Användarnamn</string>

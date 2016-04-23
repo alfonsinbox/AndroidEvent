@@ -30,4 +30,13 @@ public class NotificationUtilities {
         mClient.invokeApi("notification/register/google", null, "POST", headers, params, serviceFilterResponseCallback);
     }
 
+    public static void deleteRegistration(Activity activity, String registrationId, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback){
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.create("registration_id", registrationId));
+
+        List<Pair<String, String>> headers = new ArrayList<>();
+        headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity)));
+
+        mClient.invokeApi("notification/delete", null, "POST", headers, params, serviceFilterResponseCallback);
+    }
 }

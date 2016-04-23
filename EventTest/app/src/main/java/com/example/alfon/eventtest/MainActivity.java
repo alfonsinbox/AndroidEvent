@@ -40,12 +40,14 @@ import java.util.WeakHashMap;
 public class MainActivity extends AppCompatActivity  {
 
     Activity activity;
+    MobileServiceClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         activity = this;
+        mClient = GlobalApplication.mClient;
         System.out.println("DIS IS APP ID: " + MobileServiceApplication.getInstallationId(this.getApplicationContext()));
         System.out.println(activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getString(GlobalApplication.PREFERENCE_REGISTRATION_ID, ""));
     }
@@ -67,10 +69,22 @@ public class MainActivity extends AppCompatActivity  {
         startActivity(intent);
     }
     public void signOut(View view){
-        if(AuthUtilities.removeToken(activity)){
-            Intent intent = new Intent(activity, SignInActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        ServiceFilterResponseCallback deletedRegistrationResponseCallback = new ServiceFilterResponseCallback() {
+            @Override
+            public void onResponse(ServiceFilterResponse response, Exception exception) {
+                if(exception != null){
+                    exception.printStackTrace();
+                    Toast.makeText(activity, R.string.could_not_sign_out_toast, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(AuthUtilities.removeToken(activity)){
+                    Intent intent = new Intent(activity, SignInActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        };
+        String registrationId = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getString(GlobalApplication.PREFERENCE_REGISTRATION_ID, "");
+        NotificationUtilities.deleteRegistration(activity, registrationId, mClient, deletedRegistrationResponseCallback);
     }
 }
