@@ -59,33 +59,7 @@ public class SignInActivity extends AppCompatActivity {
                     String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
                     AuthUtilities.saveToken(token, activity);
 
-                    final Intent intent;
-                    String activityRedirect;
-
-                    try{
-                        activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
-                    }catch (Exception e){
-                        activityRedirect = "";
-                    }
-
-                    if (activityRedirect == null) {
-                        intent = new Intent(activity, MainActivity.class);
-                    } else {
-                        switch (activityRedirect) {
-                            case "UserOverview":
-                                intent = new Intent(activity, UserOverviewActivity.class);
-                                break;
-                            case "EventDetails":
-                                intent = new Intent(activity, EventDetailsActivity.class);
-                                break;
-                            default:
-                                intent = new Intent(activity, MainActivity.class);
-                                break;
-                        }
-                    }
-
-                    startActivity(intent);
-                    finish();
+                    navigateCorrectActivityFinishThis();
                 }
             };
 
@@ -127,34 +101,7 @@ public class SignInActivity extends AppCompatActivity {
                 editor.commit();
 
                 // If both requests went well, user is logged in
-                Intent intent;
-                String activityRedirect;
-
-                try{
-                    activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
-                }catch (Exception e){
-                    activityRedirect = "";
-                }
-
-                if (activityRedirect == null) {
-                    intent = new Intent(activity, MainActivity.class);
-                } else {
-                    switch (activityRedirect) {
-                        case "UserOverview":
-                            intent = new Intent(activity, UserOverviewActivity.class);
-                            break;
-                        case "EventDetails":
-                            intent = new Intent(activity, EventDetailsActivity.class);
-                            break;
-                        default:
-                            intent = new Intent(activity, MainActivity.class);
-                            break;
-                    }
-                }
-
-                startActivity(intent);
-                // Finish activity so you can't navigate back to it
-                finish();
+                navigateCorrectActivityFinishThis();
             }
         };
 
@@ -191,6 +138,45 @@ public class SignInActivity extends AppCompatActivity {
         };
 
         AuthUtilities.requestToken(mClient, usernameEditText.getText().toString(), passwordEditText.getText().toString(), gotUserTokenResponseCallback);
+    }
+
+    private void navigateCorrectActivityFinishThis(){
+        Intent intent;
+        String activityRedirect;
+
+        try{
+            activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
+        }catch (Exception e){
+            activityRedirect = "";
+        }
+
+        if (activityRedirect == null) {
+            intent = new Intent(activity, MainActivity.class);
+        } else {
+            switch (activityRedirect) {
+                case "UserOverview":
+                    intent = new Intent(activity, UserOverviewActivity.class);
+                    intent.putExtra(GlobalApplication.EXTRA_USEROVERVIEW_FETCH_DATA,
+                            getIntent().getExtras().getBoolean(GlobalApplication.EXTRA_USEROVERVIEW_FETCH_DATA));
+                    intent.putExtra(GlobalApplication.EXTRA_USEROVERVIEW_USER_ID,
+                            getIntent().getExtras().getString(GlobalApplication.EXTRA_USEROVERVIEW_USER_ID));
+                    break;
+                case "EventDetails":
+                    intent = new Intent(activity, EventDetailsActivity.class);
+                    intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_FETCH_DATA,
+                            getIntent().getExtras().getBoolean(GlobalApplication.EXTRA_EVENTDETAILS_FETCH_DATA));
+                    intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID,
+                            getIntent().getExtras().getString(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID));
+                    break;
+                default:
+                    intent = new Intent(activity, MainActivity.class);
+                    break;
+            }
+        }
+
+        startActivity(intent);
+        // Finish activity so you can't navigate back to it
+        finish();
     }
 
     public void navigateCreateAccount(View view) {
