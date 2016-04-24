@@ -26,6 +26,8 @@ public class GlobalApplication extends Application {
     public static final String PREFERENCE_REGISTRATION_ID = "PreferenceRegId";
     public static final String PREFERENCE_USER_TOKEN = "token";
 
+    public static final String NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION = "NotificationActivityRedirect";
+
     @Override
     public void onCreate() {
         super.onCreate();

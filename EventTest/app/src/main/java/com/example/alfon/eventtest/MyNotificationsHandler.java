@@ -48,18 +48,23 @@ public class MyNotificationsHandler extends NotificationsHandler {
     @Override
     public void onReceive(Context context, Bundle bundle) {
         super.onReceive(context, bundle);
-        String msg = bundle.getString("message");
+        String message = bundle.getString("message");
+        String title = bundle.getString("title");
+        String redirectAcitivty = bundle.getString("redirect");
+
+        Intent intent = new Intent(context, SignInActivity.class);
+        intent.putExtra(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION, redirectAcitivty);
 
         PendingIntent contentIntent = PendingIntent.getActivity(context,
-                0, // requestCode
-                new Intent(context, UserOverviewActivity.class),
+                0, // requestCode,
+                intent,
                 0); // flags
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Notification Hub Demo")
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-                .setContentText(msg)
+                .setContentTitle(title)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                .setContentText(message)
                 .setContentIntent(contentIntent)
                 .build();
 

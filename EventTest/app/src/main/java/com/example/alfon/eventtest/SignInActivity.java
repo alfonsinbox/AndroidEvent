@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -51,11 +52,25 @@ public class SignInActivity extends AppCompatActivity {
                         setContentView(R.layout.activity_sign_in);
                         usernameEditText = (EditText) findViewById(R.id.edittext_username);
                         passwordEditText = (EditText) findViewById(R.id.edittext_password);
+                        signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
+                        signingInProgress = (RelativeLayout) findViewById(R.id.signing_in_progress);
                         return;
                     }
                     String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
                     AuthUtilities.saveToken(token, activity);
-                    Intent intent = new Intent(activity, MainActivity.class);
+                    Intent intent;
+                    switch (getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION)){
+                        case "UserOverview":
+                            intent = new Intent(activity, UserOverviewActivity.class);
+                            break;
+                        case "EventDetails":
+                            intent = new Intent(activity, EventDetailsActivity.class);
+                            break;
+                        default:
+                            intent = new Intent(activity, MainActivity.class);
+                            break;
+                    }
+                    intent = new Intent(activity, MainActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -100,6 +115,17 @@ public class SignInActivity extends AppCompatActivity {
 
                 // If both requests went well, user is logged in
                 Intent intent = new Intent(activity, MainActivity.class);
+                switch (getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION)){
+                    case "UserOverview":
+                        intent = new Intent(activity, UserOverviewActivity.class);
+                        break;
+                    case "EventDetails":
+                        intent = new Intent(activity, EventDetailsActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(activity, MainActivity.class);
+                        break;
+                }
                 startActivity(intent);
                 // Finish activity so you can't navigate back to it
                 finish();
