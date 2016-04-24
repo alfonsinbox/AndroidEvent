@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity  {
                     Toast.makeText(activity, R.string.could_not_sign_out_toast, Toast.LENGTH_SHORT).show();
                     return;
                 }
+                System.out.println("REMOVED EXACTLY " + response.getContent() + " REGISTRATION(S)");
                 if(AuthUtilities.removeToken(activity)){
                     Intent intent = new Intent(activity, SignInActivity.class);
                     startActivity(intent);

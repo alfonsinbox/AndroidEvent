@@ -58,19 +58,32 @@ public class SignInActivity extends AppCompatActivity {
                     }
                     String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
                     AuthUtilities.saveToken(token, activity);
-                    Intent intent;
-                    switch (getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION)){
-                        case "UserOverview":
-                            intent = new Intent(activity, UserOverviewActivity.class);
-                            break;
-                        case "EventDetails":
-                            intent = new Intent(activity, EventDetailsActivity.class);
-                            break;
-                        default:
-                            intent = new Intent(activity, MainActivity.class);
-                            break;
+
+                    final Intent intent;
+                    String activityRedirect;
+
+                    try{
+                        activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
+                    }catch (Exception e){
+                        activityRedirect = "";
                     }
-                    intent = new Intent(activity, MainActivity.class);
+
+                    if (activityRedirect == null) {
+                        intent = new Intent(activity, MainActivity.class);
+                    } else {
+                        switch (activityRedirect) {
+                            case "UserOverview":
+                                intent = new Intent(activity, UserOverviewActivity.class);
+                                break;
+                            case "EventDetails":
+                                intent = new Intent(activity, EventDetailsActivity.class);
+                                break;
+                            default:
+                                intent = new Intent(activity, MainActivity.class);
+                                break;
+                        }
+                    }
+
                     startActivity(intent);
                     finish();
                 }
@@ -114,18 +127,31 @@ public class SignInActivity extends AppCompatActivity {
                 editor.commit();
 
                 // If both requests went well, user is logged in
-                Intent intent = new Intent(activity, MainActivity.class);
-                switch (getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION)){
-                    case "UserOverview":
-                        intent = new Intent(activity, UserOverviewActivity.class);
-                        break;
-                    case "EventDetails":
-                        intent = new Intent(activity, EventDetailsActivity.class);
-                        break;
-                    default:
-                        intent = new Intent(activity, MainActivity.class);
-                        break;
+                Intent intent;
+                String activityRedirect;
+
+                try{
+                    activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
+                }catch (Exception e){
+                    activityRedirect = "";
                 }
+
+                if (activityRedirect == null) {
+                    intent = new Intent(activity, MainActivity.class);
+                } else {
+                    switch (activityRedirect) {
+                        case "UserOverview":
+                            intent = new Intent(activity, UserOverviewActivity.class);
+                            break;
+                        case "EventDetails":
+                            intent = new Intent(activity, EventDetailsActivity.class);
+                            break;
+                        default:
+                            intent = new Intent(activity, MainActivity.class);
+                            break;
+                    }
+                }
+
                 startActivity(intent);
                 // Finish activity so you can't navigate back to it
                 finish();
