@@ -48,11 +48,14 @@ public class SelectUsersActivity extends AppCompatActivity {
         mClient = ((GlobalApplication) getApplication()).getmClient();
 
         selectedUsers = (List<User>) getIntent().getSerializableExtra("users");
-        if (selectedUsers == null){
+
+        if (selectedUsers == null) {
             selectedUsers = new ArrayList<>();
         }
 
-        populateUserList(selectedUsers);
+        List<User> initialPopulateUsers = new ArrayList<>(selectedUsers);
+
+        populateUserList(initialPopulateUsers);
 
         editTextSearchUsers = (EditText) findViewById(R.id.edittext_search_users);
         editTextSearchUsers.addTextChangedListener(new TextWatcher() {
@@ -68,7 +71,7 @@ public class SelectUsersActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(usersListenableFuture != null){
+                if (usersListenableFuture != null) {
                     usersListenableFuture.cancel(true);
                 }
                 usersListenableFuture = userUtilities.getUsersFromStringFuture(activity, editTextSearchUsers.getText().toString(), mClient);
@@ -89,11 +92,11 @@ public class SelectUsersActivity extends AppCompatActivity {
         });
     }
 
-    public void populateUserList(List<User> users){
+    public void populateUserList(List<User> users) {
 
-        for (User user: users) {
-            for(User selectedUser: selectedUsers){
-                if(selectedUser.id.equals(user.id)){
+        for (User user : users) {
+            for (User selectedUser : selectedUsers) {
+                if (selectedUser.id.equals(user.id)) {
                     user.user_is_selected = true;
                 }
             }
@@ -102,16 +105,17 @@ public class SelectUsersActivity extends AppCompatActivity {
         System.out.println(selectedUsers.size());
         System.out.println(new Gson().toJson(selectedUsers));
 
-        UserSearchAdapter userSearchAdapter = new UserSearchAdapter(activity, R.layout.list_item_user_search, users);
+        final UserSearchAdapter userSearchAdapter = new UserSearchAdapter(activity, R.layout.list_item_user_search, users);
         listViewUsers.setAdapter(userSearchAdapter);
         listViewUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 User selectedUser = (User) parent.getItemAtPosition(position);
 
-                for(User user: selectedUsers){
-                    if(user.id.equals(selectedUser.id)){
+                for (User user : selectedUsers) {
+                    if (user.id.equals(selectedUser.id)) {
                         ((CheckBox) view.findViewById(R.id.user_is_selected)).setChecked(false);
+                        System.out.println("UNCHECKED A BOX");
                         selectedUsers.remove(user);
                         System.out.println(selectedUsers.size());
                         System.out.println(new Gson().toJson(selectedUsers));
@@ -120,6 +124,7 @@ public class SelectUsersActivity extends AppCompatActivity {
                 }
 
                 ((CheckBox) view.findViewById(R.id.user_is_selected)).setChecked(true);
+                System.out.println("CHECKED A BOX");
                 selectedUsers.add(selectedUser);
 
                 System.out.println(selectedUsers.size());
