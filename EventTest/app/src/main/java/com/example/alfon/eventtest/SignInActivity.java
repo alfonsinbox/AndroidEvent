@@ -13,9 +13,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -54,6 +57,18 @@ public class SignInActivity extends AppCompatActivity {
                         passwordEditText = (EditText) findViewById(R.id.edittext_password);
                         signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
                         signingInProgress = (RelativeLayout) findViewById(R.id.signing_in_progress);
+
+                        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                            @Override
+                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                    signIn(v);
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+
                         return;
                     }
                     String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
@@ -99,6 +114,17 @@ public class SignInActivity extends AppCompatActivity {
 
             signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
             signingInProgress = (RelativeLayout) findViewById(R.id.signing_in_progress);
+
+            passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        signIn(v);
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }
 

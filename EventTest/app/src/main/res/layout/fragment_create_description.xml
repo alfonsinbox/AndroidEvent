@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_small_margin"
         android:hint="@string/event_description_header"
+        android:inputType="textMultiLine|textCapSentences"
         android:textSize="@dimen/text_header_size" />
 
     <RelativeLayout

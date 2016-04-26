@@ -63,12 +63,14 @@
         <activity android:name=".CreateEventActivity"
             android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".SelectLocationActivity" />
-        <activity android:name=".SelectUsersActivity" />
+        <activity android:name=".SelectUsersActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
         <activity android:name=".CreateUserActivity" />
         <activity android:name=".SearchLocationActivity" />
         <activity android:name=".CreateLocationActivity" />
         <activity android:name=".SearchEventsActivity" />
-        <activity android:name=".SelectCategoriesActivity" />
+        <activity android:name=".SelectCategoriesActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
     </application>
 
 </manifest>
