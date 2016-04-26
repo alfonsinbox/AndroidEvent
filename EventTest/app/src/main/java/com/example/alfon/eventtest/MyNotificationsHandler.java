@@ -50,15 +50,23 @@ public class MyNotificationsHandler extends NotificationsHandler {
         super.onReceive(context, bundle);
         String message = bundle.getString("message");
         String title = bundle.getString("title");
-        String redirectAcitivty = bundle.getString("redirect");
+        String redirectActivity = bundle.getString("redirect");
+        String eventId = bundle.getString("event_id");
+        String userId = bundle.getString("user_id");
+
+        System.out.println("WILL REDIRECT TO " + redirectActivity);
 
         Intent intent = new Intent(context, SignInActivity.class);
-        intent.putExtra(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION, redirectAcitivty);
+        intent.putExtra(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION, redirectActivity);
+        intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_FETCH_DATA, true);
+        intent.putExtra(GlobalApplication.EXTRA_USEROVERVIEW_FETCH_DATA, true);
+        intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID, eventId);
+        intent.putExtra(GlobalApplication.EXTRA_USEROVERVIEW_USER_ID, userId);
 
         PendingIntent contentIntent = PendingIntent.getActivity(context,
                 0, // requestCode,
                 intent,
-                0); // flags
+                PendingIntent.FLAG_UPDATE_CURRENT); // flags
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)

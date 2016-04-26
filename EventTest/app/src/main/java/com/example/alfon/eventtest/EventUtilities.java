@@ -39,6 +39,16 @@ public class EventUtilities {
         mClient.invokeApi("event/get", null, "POST", headers, params, serviceFilterResponseCallback);
     }
 
+    public static void getEventDetails(Activity activity, String eventId, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback) {
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.create("event_id", eventId));
+
+        List<Pair<String, String>> headers = new ArrayList<>();
+        headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity)));
+
+        mClient.invokeApi("event/get", null, "POST", headers, params, serviceFilterResponseCallback);
+    }
+
     public void searchEvents(Activity activity, String query, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback) {
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(Pair.create("query", query));
