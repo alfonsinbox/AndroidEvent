@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +38,7 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
     ActivityUserOverviewBinding activityUserOverviewBinding;
 
     User detailUser;
+    RelativeLayout userInterestsRelativeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +46,13 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
         setContentView(R.layout.activity_user_overview);
 
         activity = this;
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
 
         authUtilities = new AuthUtilities();
 
         activityUserOverviewBinding = DataBindingUtil.setContentView(activity, R.layout.activity_user_overview);
+
+        userInterestsRelativeLayout = (RelativeLayout) findViewById(R.id.user_interests_button);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.tab_pages_user_events);
         viewPager.setAdapter(new PagerUserEventsAdapter(getSupportFragmentManager(), 2));
@@ -83,6 +87,12 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
             public void onResponse(ServiceFilterResponse response, Exception exception) {
                 detailUser = new Gson().fromJson(response.getContent(), User.class);
                 activityUserOverviewBinding.setUser(detailUser);
+                userInterestsRelativeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setUserInterests(v);
+                    }
+                });
 
                 System.out.println(response.getContent());
                 System.out.println(detailUser.firstName + " " + detailUser.lastName);

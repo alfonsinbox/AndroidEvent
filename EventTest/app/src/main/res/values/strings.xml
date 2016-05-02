@@ -15,6 +15,10 @@
     <string name="sign_in_button_text">Logga in</string>
     <string name="create_account_button_text">Skapa konto</string>
 
+    <!--Strings for UserOverviewActivity-->
+    <string name="user_interests_header">Intressen</string>
+    <string name="user_contacts_header">Kontakter</string>
+
     <!--Strings for CreateUserActivity-->
     <string name="firstname_edittext_hint">Förnamn</string>
     <string name="lastname_edittext_hint">Efternamn</string>
