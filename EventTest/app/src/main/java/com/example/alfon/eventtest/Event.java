@@ -53,5 +53,8 @@ public class Event implements Serializable{
     @SerializedName("host_ids")
     public List<String> hostIds;
 
+    @SerializedName("invited_ids")
+    public List<String> invitedIds;
+
     public List<Category> categories;
 }

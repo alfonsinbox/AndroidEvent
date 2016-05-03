@@ -168,6 +168,32 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/event_invitees_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:onClick="selectInvitees"
+                    android:padding="@dimen/text_medium_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/event_invitees_header"
+                        android:textSize="@dimen/text_header_size" />
+
+                    <TextView
+                        android:id="@+id/event_invitees_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:textSize="@dimen/text_header_size" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:id="@+id/event_hosts_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

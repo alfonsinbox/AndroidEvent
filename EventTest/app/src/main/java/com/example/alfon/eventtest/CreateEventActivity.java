@@ -45,6 +45,7 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
     Event createdEvent;
 
     List<User> selectedHosts;
+    List<User> selectedInvitees;
 
     RelativeLayout createEventButton;
     RelativeLayout creatingEventProgressbar;
@@ -60,6 +61,7 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
         eventToCreate = new Event();
         nowCalendar = Calendar.getInstance();
         selectedHosts = new ArrayList<>();
+        selectedInvitees = new ArrayList<>();
 
         mClient = ((GlobalApplication) getApplication()).getmClient();
         activity = this;
@@ -155,6 +157,12 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
         startActivityForResult(selectHostsIntent, 1);
     }
 
+    public void selectInvitees(View view){
+        Intent selectHostsIntent = new Intent(this, SelectUsersActivity.class);
+        selectHostsIntent.putExtra("users", (Serializable) selectedInvitees);
+        startActivityForResult(selectHostsIntent, 3);
+    }
+
     public void selectCategories(View view) {
         Intent selectCategoriesIntent = new Intent(this, SelectCategoriesActivity.class);
         selectCategoriesIntent.putExtra("categories", (Serializable) eventToCreate.categories);
@@ -176,6 +184,7 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
          * requestCode == 0 => selected location returned
          * requestCode == 1 => selected hosts returned
          * requestCode == 2 => selected categories returned
+         * requestCode == 3 => selected invitees returned
          */
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
@@ -202,6 +211,15 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
                     }
                     ((TextView) findViewById(R.id.event_categories_value)).setText(String.valueOf(eventToCreate.categories.size()));
                     Toast.makeText(activity, new Gson().toJson(eventToCreate.categories), Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    selectedInvitees = (List<User>) data.getSerializableExtra("users");
+                    eventToCreate.invitedIds = new ArrayList<>();
+                    for (User u : selectedInvitees) {
+                        eventToCreate.invitedIds.add(u.id);
+                    }
+                    ((TextView) findViewById(R.id.event_invitees_value)).setText(String.valueOf(selectedInvitees.size()));
+                    Toast.makeText(activity, new Gson().toJson(selectedInvitees), Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -255,6 +273,7 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
                 /**
                  * If you have selected hosts, post them as well
                  * Otherwise, go directly to EventDetailsActivity
+                 * DEPRECATED METHOD
                  */
                 //if (!selectedHosts.isEmpty()) {
 //

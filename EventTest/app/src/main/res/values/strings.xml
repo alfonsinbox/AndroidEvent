@@ -47,6 +47,7 @@
     <string name="event_ends_header">Slutar</string>
     <string name="event_location_header">Plats</string>
     <string name="event_categories_header">Kategorier</string>
+    <string name="event_invitees_header">Inbjudna</string>
     <string name="event_hosts_header">Värdar</string>
     <string name="event_is_private_header">Privat</string>
     <string name="create_event_button">Skapa</string>
