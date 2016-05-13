@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.support.annotation.MainThread;

@@ -225,6 +225,10 @@ public class CreateEventActivity extends AppCompatActivity implements CreateDesc
         }
     }
 
+    public void toggleEventPrivateSwitch(View view){
+        ((Switch) findViewById(R.id.event_is_private_value)).toggle();
+    }
+
     public void createEvent(View view) {
         /**
          * TODO Felhantering för tomma fält osv.

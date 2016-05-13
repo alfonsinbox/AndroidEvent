@@ -74,7 +74,7 @@ public class CreateUserActivity extends AppCompatActivity {
                     AuthUtilities.saveToken(token, activity);
 
                     if (!AuthUtilities.getLocalToken(activity).equals("")) {
-                        Intent intent = new Intent(activity, MainActivity.class);
+                        Intent intent = new Intent(activity, ConfirmationInformationActivity.class);
                         startActivity(intent);
                         // Finish activity so you can't navigate back to it
                         finish();

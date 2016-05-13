@@ -70,4 +70,9 @@
     <!--String for CreateDescriptionFragment-->
     <string name="finished_button_text">Färdig</string>
 
+    <!--Strings for ConfirmationInformationActivity-->
+    <string name="confirm_account_information">Innan du kan fortsätta behöver du bekräfta ditt konto. Vi har skickat dig ett e-post med vidare instruktioner. Om du inte mottagit den efter ett tag, kolla din skräppost</string>
+    <string name="confirm_account_header">Nästan färdigt...</string>
+    <string name="continue_button_text">Jag har bekräftat kontot</string>
+
 </resources>
