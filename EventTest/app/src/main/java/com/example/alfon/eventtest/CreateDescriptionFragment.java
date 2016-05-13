@@ -67,7 +67,7 @@ public class CreateDescriptionFragment extends Fragment {
 
         descriptionEditText.requestFocus();
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,InputMethodManager.HIDE_IMPLICIT_ONLY);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         buttonFinished.setOnClickListener(new View.OnClickListener() {
             @Override

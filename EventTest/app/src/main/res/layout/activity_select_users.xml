@@ -12,7 +12,7 @@
         android:layout_margin="@dimen/text_small_margin"
         android:background="@drawable/solid_edittext"
         android:elevation="2dp"
-        android:hint="@string/search_locations_edittext_hint"
+        android:hint="@string/search_users_edittext_hint"
         android:padding="@dimen/text_medium_margin"
         android:singleLine="true" />
 
