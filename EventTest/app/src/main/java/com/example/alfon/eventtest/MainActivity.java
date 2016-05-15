@@ -1,7 +1,9 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity  {
                     return;
                 }
                 System.out.println("REMOVED EXACTLY " + response.getContent() + " REGISTRATION(S)");
+
+                NotificationUtilities.setDeviceRegisteredForNotifications(activity, false);
+
                 if(AuthUtilities.removeToken(activity)){
                     Intent intent = new Intent(activity, SignInActivity.class);
                     startActivity(intent);

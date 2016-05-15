@@ -2,6 +2,7 @@ package com.example.alfon.eventtest;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -45,12 +46,14 @@ public class ConfirmationInformationActivity extends AppCompatActivity {
                     exception.printStackTrace();
                     return;
                 }
+                NotificationUtilities.setDeviceRegisteredForNotifications(activity, true);
+
                 Intent intent = new Intent(activity, MainActivity.class);
                 startActivity(intent);
             }
         };
 
-        NotificationUtilities.registerGcmId(activity, activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, ""),
+        NotificationUtilities.registerGcmId(activity, NotificationUtilities.getGcmRegistrationId(activity),
                 mClient, finishedRegisterForPushResponseCallback);
     }
 }

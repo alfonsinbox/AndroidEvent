@@ -76,7 +76,8 @@
         <activity
             android:name=".SelectCategoriesActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
-        <activity android:name=".ConfirmationInformationActivity"></activity>
+        <activity android:name=".ConfirmationInformationActivity" />
+        <activity android:name=".CancelEventActivity"></activity>
     </application>
 
 </manifest>

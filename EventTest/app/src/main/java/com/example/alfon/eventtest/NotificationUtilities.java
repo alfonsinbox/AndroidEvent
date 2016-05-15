@@ -39,4 +39,33 @@ public class NotificationUtilities {
 
         mClient.invokeApi("notification/delete", null, "POST", headers, params, serviceFilterResponseCallback);
     }
+
+    public static void setDeviceRegisteredForNotifications(Activity activity, boolean valueToPut){
+        SharedPreferences storedUserPreferences = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = storedUserPreferences.edit();
+        editor.putBoolean(GlobalApplication.PREFERENCE_DEVICE_REGISTERED_FOR_PUSH, valueToPut);
+        editor.commit();
+    }
+    public static boolean isDeviceRegistered(Activity activity){
+        return activity
+                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                .getBoolean(GlobalApplication.PREFERENCE_DEVICE_REGISTERED_FOR_PUSH, false);
+    }
+
+    public static void setRegistrationId(Activity activity, String registrationId){
+        SharedPreferences storedUserPreferences = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = storedUserPreferences.edit();
+        editor.putString(GlobalApplication.PREFERENCE_REGISTRATION_ID, registrationId);
+        editor.commit();
+    }
+    public static String getRegistrationId(Activity activity){
+        return activity
+                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                .getString(GlobalApplication.PREFERENCE_REGISTRATION_ID, "");
+    }
+    public static String getGcmRegistrationId(Activity activity){
+        return activity
+                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
+    }
 }

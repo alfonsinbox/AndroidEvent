@@ -1,6 +1,7 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.databinding.BindingConversion;
 import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
@@ -176,8 +177,11 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
         Toast.makeText(activity, "DELETE", Toast.LENGTH_SHORT).show();
     }
 
-    private void cancelEvent() {
-        Toast.makeText(activity, "CANCEL", Toast.LENGTH_SHORT).show();
+    private void navigateCancelEvent() {
+        //Toast.makeText(activity, "CANCEL", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(activity, CancelEventActivity.class);
+        intent.putExtra(GlobalApplication.EXTRA_CANCELEVENT_EVENTID, detailedEvent.id);
+        startActivity(intent);
     }
 
     private void attendEvent() {
@@ -198,7 +202,7 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
                 deleteEvent();
                 return true;
             case R.id.menu_item_cancel_event:
-                cancelEvent();
+                navigateCancelEvent();
                 return true;
             case R.id.menu_item_attend_event:
                 attendEvent();

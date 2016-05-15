@@ -20,6 +20,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -53,6 +54,7 @@ public class SignInActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(ServiceFilterResponse response, Exception exception) {
                     if (exception != null) {
+                        // User was inactive for too long
                         setContentView(R.layout.activity_sign_in);
                         usernameEditText = (EditText) findViewById(R.id.edittext_username);
                         passwordEditText = (EditText) findViewById(R.id.edittext_password);
@@ -69,6 +71,10 @@ public class SignInActivity extends AppCompatActivity {
                                 return false;
                             }
                         });
+
+                        if (NotificationUtilities.isDeviceRegistered(activity)) {
+                            deleteCurrentNotificationRegistration();
+                        }
 
                         return;
                     }
@@ -103,6 +109,22 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+    public void deleteCurrentNotificationRegistration() {
+        final ServiceFilterResponseCallback deletedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
+            @Override
+            public void onResponse(ServiceFilterResponse response, Exception exception) {
+                if (exception != null) {
+                    exception.printStackTrace();
+                    deleteCurrentNotificationRegistration();
+                    return;
+                }
+                NotificationUtilities.setDeviceRegisteredForNotifications(activity, false);
+            }
+        };
+        String registrationId = NotificationUtilities.getRegistrationId(activity);
+        NotificationUtilities.deleteRegistration(activity, registrationId, mClient, deletedNotificationRegistrationResponseCallback);
+    }
+
     public void signIn(View view) {
         System.out.println("PREVIOUS TOKEN: " + AuthUtilities.getLocalToken(activity));
 
@@ -116,16 +138,17 @@ public class SignInActivity extends AppCompatActivity {
                     exception.printStackTrace();
                     signInButton.setVisibility(View.VISIBLE);
                     signingInProgress.setVisibility(View.INVISIBLE);
+                    Toast.makeText(activity, R.string.could_not_sign_in_toast, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 String registrationId = new Gson().fromJson(response.getContent(), JsonObject.class).get("registration_id").getAsString();
 
                 System.out.println(response.getContent());
-                SharedPreferences storedUserPreferences = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = storedUserPreferences.edit();
-                editor.putString(GlobalApplication.PREFERENCE_REGISTRATION_ID, registrationId);
-                editor.commit();
+
+                NotificationUtilities.setRegistrationId(activity, registrationId);
+
+                NotificationUtilities.setDeviceRegisteredForNotifications(activity, true);
 
                 // If both requests went well, user is logged in
                 navigateCorrectActivityFinishThis();
@@ -139,6 +162,7 @@ public class SignInActivity extends AppCompatActivity {
                     exception.printStackTrace();
                     signInButton.setVisibility(View.VISIBLE);
                     signingInProgress.setVisibility(View.INVISIBLE);
+                    Toast.makeText(activity, R.string.could_not_sign_in_toast, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -148,14 +172,19 @@ public class SignInActivity extends AppCompatActivity {
                     System.out.println("TOKEN WAS RETRIEVED: " + token);
                     AuthUtilities.saveToken(token, activity);
 
+
                     if (!AuthUtilities.getLocalToken(activity).equals("")) {
+                        boolean pushAlreadyRegistered = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getBoolean(GlobalApplication.PREFERENCE_DEVICE_REGISTERED_FOR_PUSH, false);
+                        if (pushAlreadyRegistered) {
+                            // Register device for push notifications
+                            gcmRegistrationId = activity
+                                    .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                                    .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
 
-                        // Register device for push notifications
-                        gcmRegistrationId = activity
-                                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
-                                .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
+                            NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
+                        } else {
 
-                        NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
+                        }
                     }
 
                 } catch (Exception ex) {
@@ -167,13 +196,13 @@ public class SignInActivity extends AppCompatActivity {
         AuthUtilities.requestToken(mClient, usernameEditText.getText().toString(), passwordEditText.getText().toString(), gotUserTokenResponseCallback);
     }
 
-    private void navigateCorrectActivityFinishThis(){
+    private void navigateCorrectActivityFinishThis() {
         Intent intent;
         String activityRedirect;
 
-        try{
+        try {
             activityRedirect = getIntent().getExtras().getString(GlobalApplication.NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION);
-        }catch (Exception e){
+        } catch (Exception e) {
             activityRedirect = "";
         }
 

@@ -14,6 +14,7 @@
     <string name="password_edittext_hint">Lösenord</string>
     <string name="sign_in_button_text">Logga in</string>
     <string name="create_account_button_text">Skapa konto</string>
+    <string name="could_not_sign_in_toast">Kunde inte logga in</string>
 
     <!--Strings for UserOverviewActivity-->
     <string name="user_interests_header">Intressen</string>
@@ -74,5 +75,10 @@
     <string name="confirm_account_information">Innan du kan fortsätta behöver du bekräfta ditt konto. Vi har skickat dig ett e-post med vidare instruktioner. Om du inte mottagit den efter ett tag, kolla din skräppost</string>
     <string name="confirm_account_header">Nästan färdigt...</string>
     <string name="continue_button_text">Jag har bekräftat kontot</string>
+
+    <!--Strings for CancelEventActivity-->
+    <string name="cancel_event_button_text">Ställ in event</string>
+    <string name="cancel_event_reason_hint">Varför ställer du in eventet?</string>
+    <string name="canceled_event_toast">Eventet inställt</string>
 
 </resources>

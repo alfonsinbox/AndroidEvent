@@ -61,6 +61,7 @@ public class AuthUtilities {
             return false;
         }
     }
+
     public static Boolean removeToken(Activity activity) {
         try {
             SharedPreferences storedUserData = activity.getSharedPreferences("UserSettings", 0);

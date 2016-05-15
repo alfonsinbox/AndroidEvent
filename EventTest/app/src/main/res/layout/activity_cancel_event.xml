@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.alfon.eventtest.CancelEventActivity">
+
+    <EditText
+        android:id="@+id/edittext_canceled_reason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_small_margin"
+        android:inputType="textMultiLine|textCapSentences"
+        android:textSize="@dimen/text_header_size"
+        android:hint="@string/cancel_event_reason_hint"/>
+
+
+    <RelativeLayout
+        android:id="@+id/cancel_event_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/colored_ripple"
+        android:onClick="cancelEvent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingBottom="@dimen/button_medium_padding"
+            android:paddingLeft="@dimen/button_large_padding"
+            android:paddingRight="@dimen/button_large_padding"
+            android:paddingTop="@dimen/button_medium_padding"
+            android:text="@string/cancel_event_button_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_header_size" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/cancel_event_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:paddingBottom="@dimen/button_medium_padding"
+            android:paddingLeft="@dimen/button_large_padding"
+            android:paddingRight="@dimen/button_large_padding"
+            android:paddingTop="@dimen/button_medium_padding" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
