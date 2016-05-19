@@ -175,15 +175,16 @@ public class SignInActivity extends AppCompatActivity {
 
                     if (!AuthUtilities.getLocalToken(activity).equals("")) {
                         boolean pushAlreadyRegistered = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getBoolean(GlobalApplication.PREFERENCE_DEVICE_REGISTERED_FOR_PUSH, false);
-                        if (pushAlreadyRegistered) {
+                        if (!pushAlreadyRegistered) {
                             // Register device for push notifications
                             gcmRegistrationId = activity
                                     .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
                                     .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
 
                             NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
+                            Toast.makeText(activity, R.string.device_registered_push, Toast.LENGTH_SHORT).show();
                         } else {
-
+                            navigateCorrectActivityFinishThis();
                         }
                     }
 
