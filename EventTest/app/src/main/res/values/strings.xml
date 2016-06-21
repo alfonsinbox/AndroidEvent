@@ -16,6 +16,7 @@
     <string name="create_account_button_text">Skapa konto</string>
     <string name="could_not_sign_in_toast">Kunde inte logga in</string>
     <string name="device_registered_push">Registrerade för push</string>
+    <string name="forgot_password_button_text">Jag har glömt mitt lösenord</string>
 
     <!--Strings for UserOverviewActivity-->
     <string name="user_interests_header">Intressen</string>
@@ -81,5 +82,8 @@
     <string name="cancel_event_button_text">Ställ in event</string>
     <string name="cancel_event_reason_hint">Varför ställer du in eventet?</string>
     <string name="canceled_event_toast">Eventet inställt</string>
+
+    <!--Strings for ResetPasswordActivity-->
+    <string name="send_reset_password_email_button">Skicka återställningsmail</string>
 
 </resources>

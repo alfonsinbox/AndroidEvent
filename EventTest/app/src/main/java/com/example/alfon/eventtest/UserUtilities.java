@@ -55,7 +55,6 @@ public class UserUtilities {
         List<Pair<String, String>> headers = new ArrayList<>();
         headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity)));
 
-        //mClient.invokeApi("user/post", null, "POST", headers, params, serviceFilterResponseCallback);
         mClient.invokeApi("user/create", null, "POST", headers, params, serviceFilterResponseCallback);
     }
 
@@ -66,7 +65,16 @@ public class UserUtilities {
         List<Pair<String, String>> headers = new ArrayList<>();
         headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity)));
 
-        //mClient.invokeApi("user/post", null, "POST", headers, params, serviceFilterResponseCallback);
         mClient.invokeApi("user/interests/set", null, "POST", headers, params, serviceFilterResponseCallback);
+    }
+
+    public static void sendResetPasswordEmail(Activity activity, String email, MobileServiceClient mClient, ServiceFilterResponseCallback serviceFilterResponseCallback){
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.create("email", email));
+
+        List<Pair<String, String>> headers = new ArrayList<>();
+        headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity)));
+
+        mClient.invokeApi("user/password/reset", null, "POST", headers, params, serviceFilterResponseCallback);
     }
 }

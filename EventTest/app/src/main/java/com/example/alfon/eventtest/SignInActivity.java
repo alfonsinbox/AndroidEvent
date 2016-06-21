@@ -236,6 +236,11 @@ public class SignInActivity extends AppCompatActivity {
         finish();
     }
 
+    public void navigateForgotPassword(View view){
+        Intent intent = new Intent(this, ForgotPasswordActivity.class);
+        startActivity(intent);
+    }
+
     public void navigateCreateAccount(View view) {
         Intent intent = new Intent(this, CreateUserActivity.class);
         startActivity(intent);
