@@ -27,4 +27,6 @@
 
     <dimen name="gridview_events_border">1dp</dimen>
 
+    <dimen name="large_info_container_vertical_margin">128dp</dimen>
+
 </resources>

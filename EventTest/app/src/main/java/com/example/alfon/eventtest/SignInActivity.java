@@ -142,6 +142,8 @@ public class SignInActivity extends AppCompatActivity {
                     return;
                 }
 
+                Toast.makeText(activity, R.string.device_registered_push, Toast.LENGTH_SHORT).show();
+
                 String registrationId = new Gson().fromJson(response.getContent(), JsonObject.class).get("registration_id").getAsString();
 
                 System.out.println(response.getContent());
@@ -182,7 +184,6 @@ public class SignInActivity extends AppCompatActivity {
                                     .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
 
                             NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
-                            Toast.makeText(activity, R.string.device_registered_push, Toast.LENGTH_SHORT).show();
                         } else {
                             navigateCorrectActivityFinishThis();
                         }

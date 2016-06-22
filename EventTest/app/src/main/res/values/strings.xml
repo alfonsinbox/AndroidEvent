@@ -84,6 +84,7 @@
     <string name="canceled_event_toast">Eventet inställt</string>
 
     <!--Strings for ResetPasswordActivity-->
-    <string name="send_reset_password_email_button">Skicka återställningsmail</string>
+    <string name="send_reset_password_email_button">Skicka mail</string>
+    <string name="send_reset_password_email_info_text">Vi kommer att skicka ett mail till den här adressen med en länk du kan använda för att återställa ditt lösenord. Kolla din skräppost om du inte fått det efter ett tag.</string>
 
 </resources>
