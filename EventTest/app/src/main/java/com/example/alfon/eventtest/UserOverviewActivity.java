@@ -4,12 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.databinding.BindingConversion;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +28,8 @@ import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,6 +48,9 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
     User detailUser;
     RelativeLayout userInterestsRelativeLayout;
 
+    UrlImageView profilePictureImageView;
+    Uri uploadImageUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +58,28 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
 
         activity = this;
         mClient = GlobalApplication.getmClient();
-
         authUtilities = new AuthUtilities();
 
         activityUserOverviewBinding = DataBindingUtil.setContentView(activity, R.layout.activity_user_overview);
 
         userInterestsRelativeLayout = (RelativeLayout) findViewById(R.id.user_interests_button);
+
+        profilePictureImageView = (UrlImageView) findViewById(R.id.profile_picture);
+        profilePictureImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File photo = FileUtilities.createTemporaryFile(activity, "IMG_" + System.currentTimeMillis() + ".jpg");
+                uploadImageUri = Uri.fromFile(photo);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uploadImageUri);
+
+                // Start camera intent if it exists
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, GlobalApplication.REQUEST_CODE_CAMERA_INTENT_PROFILE_PICTURE);
+                }
+
+            }
+        });
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.tab_pages_user_events);
         viewPager.setAdapter(new PagerUserEventsAdapter(getSupportFragmentManager(), 2));
@@ -82,9 +109,17 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
             }
         });
 
+        loadUser();
+    }
+
+    private void loadUser(){
         ServiceFilterResponseCallback userRetrievedResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
+                if(exception != null){
+                    exception.printStackTrace();
+                    return;
+                }
                 detailUser = new Gson().fromJson(response.getContent(), User.class);
                 activityUserOverviewBinding.setUser(detailUser);
                 userInterestsRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +128,8 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
                         setUserInterests(v);
                     }
                 });
+
+                new DownloadImageTask(profilePictureImageView).execute(detailUser.profilePictureUrl);
 
                 System.out.println(response.getContent());
                 System.out.println(detailUser.firstName + " " + detailUser.lastName);
@@ -146,6 +183,15 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
                         categoryIds.add(c.id);
                     }
                     UserUtilities.setInterests(activity, categoryIds, mClient, interestAddedResponseCallback);
+                    break;
+                case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_PROFILE_PICTURE:
+                    UserUtilities.UploadProfilePictureTask uploadProfilePictureTask = new UserUtilities.UploadProfilePictureTask(activity, uploadImageUri, new AsyncTaskCallback() {
+                        @Override
+                        public void asyncTaskCallbackDone() {
+                            loadUser();
+                        }
+                    });
+                    uploadProfilePictureTask.execute();
                     break;
             }
         }

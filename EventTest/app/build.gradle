@@ -33,4 +33,5 @@ dependencies {
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:percent:23.2.0'
     compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.microsoft.azure.android:azure-storage-android:0.7.0@aar'
 }

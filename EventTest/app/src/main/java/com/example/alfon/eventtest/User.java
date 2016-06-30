@@ -30,6 +30,9 @@ public class User implements Serializable{
     @SerializedName("birth_date")
     public Calendar birthDate;
 
+    @SerializedName("profile_picture_url")
+    public String profilePictureUrl;
+
     public List<Category> interests;
 
     public boolean user_is_selected;

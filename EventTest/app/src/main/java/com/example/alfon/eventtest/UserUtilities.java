@@ -1,6 +1,9 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -11,9 +14,11 @@ import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by alfon on 2016-02-23.
@@ -77,4 +82,56 @@ public class UserUtilities {
 
         mClient.invokeApi("user/password/reset", null, "POST", headers, params, serviceFilterResponseCallback);
     }
+
+    public static class UploadProfilePictureTask extends AsyncTask<Void, Void, String> {
+        private final Activity _activity;
+        private final Uri _imageUri;
+        private final AsyncTaskCallback _asyncTaskCallback;
+
+        public UploadProfilePictureTask(Activity activity, Uri imageUri, AsyncTaskCallback asyncTaskCallback){
+            _activity = activity;
+            _imageUri = imageUri;
+            _asyncTaskCallback = asyncTaskCallback;
+        }
+
+        @Override
+        protected String doInBackground(Void... values) {
+            String requestURL = "https://theeventapp.azurewebsites.net/api/user/picture/set?ZUMO-API-VERSION=2.0.0";
+            String charset = "UTF-8";
+            try {
+                MultipartUtility multipart = new MultipartUtility(_activity, requestURL, charset);
+
+                File image = FileUtilities.getImage(_imageUri);
+                multipart.addFilePart("file", image);
+
+                String completeResponse = "";
+                List<String> response = multipart.finish();
+                System.out.println("SERVER REPLIED:");
+                for (String line : response) {
+                    completeResponse += line;
+                    System.out.println("Upload Files Response:::" + line);
+                }
+                return completeResponse;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "Something went wrong!";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            System.out.println(result);
+            _asyncTaskCallback.asyncTaskCallbackDone();
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
 }

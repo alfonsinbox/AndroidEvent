@@ -20,6 +20,7 @@ public class GlobalApplication extends Application {
 
 
     public static MobileServiceClient mClient;
+    //public static final String mClient;
     public static final String SENDER_ID = "345618100514";
     public static final String PREFERENCES_USERSETTINGS = "UserSettings";
     public static final String PREFERENCE_GCM_REGISTRATION_ID = "PreferenceGcmRegId";
@@ -31,6 +32,8 @@ public class GlobalApplication extends Application {
     public static final String EXTRA_USEROVERVIEW_USER_ID = "UserOverviewUserId";
     public static final String EXTRA_USEROVERVIEW_FETCH_DATA = "UserOverviewUserId";
     public static final String EXTRA_CANCELEVENT_EVENTID = "CancelEventEventId";
+    public static final int REQUEST_CODE_CAMERA_INTENT_PROFILE_PICTURE = 10;
+
 
     public static final String NOTIFICATION_EXTRA_ACTIVITY_REDIRECTION = "NotificationActivityRedirect";
 

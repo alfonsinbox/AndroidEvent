@@ -116,7 +116,7 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
             userLocation.setLongitude(0);
         }
 
-        new EventUtilities().getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
+        EventUtilities.getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
                 String.valueOf(userLocation.getLongitude()), "8000", mClient, serviceFilterResponseCallback);
 
 
@@ -146,29 +146,35 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        userLocation = LocationUtilities.getUserLocation(activity);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        userLocation = new Location("dummyprovider");
-                        userLocation.setLatitude(0);
-                        userLocation.setLongitude(0);
-                    }
-
-                    mMap.setMyLocationEnabled(true);
-
-                    // Show selected location on Map
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
-                            .zoom(15)                   // Sets the zoom
-                            .bearing(0)                // Sets the orientation of the camera to east
-                            .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-
-                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    setLocationFocusMap();
                 }
                 break;
             }
         }
+    }
+
+    private void setLocationFocusMap(){
+
+        try {
+            userLocation = LocationUtilities.getUserLocation(activity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            userLocation = new Location("dummyprovider");
+            userLocation.setLatitude(0);
+            userLocation.setLongitude(0);
+        }
+
+        mMap.setMyLocationEnabled(true);
+
+        // Show selected location on Map
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
+                .zoom(15)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
     }
 }
