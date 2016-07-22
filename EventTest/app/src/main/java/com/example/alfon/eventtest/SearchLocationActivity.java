@@ -23,10 +23,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
+import java.util.List;
 import java.util.Locale;
 
 public class SearchLocationActivity extends AppCompatActivity {
@@ -36,6 +38,7 @@ public class SearchLocationActivity extends AppCompatActivity {
     AuthUtilities authUtilities;
     MobileServiceClient mClient;
     ListenableFuture<ServiceFilterResponse> locationSuggestionsListenableFuture;
+    ListenableFutureCreatedCallback listenableFutureCreatedCallback;
 
     Location selectedLocation;
 
@@ -59,13 +62,13 @@ public class SearchLocationActivity extends AppCompatActivity {
         activity = this;
 
         authUtilities = new AuthUtilities();
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
 
         editTextSearchBox = (EditText) findViewById(R.id.edittext_search_locations);
         listviewExistingLocationSuggestions = (ListView) findViewById(R.id.listview_existing_location_suggestions);
         listviewGoogleLocationSuggestions = (ListView) findViewById(R.id.listview_google_location_suggestions);
-        googleLocationsContainer = (LinearLayout)findViewById(R.id.google_locations_container);
-        existingLocationsContainer = (LinearLayout)findViewById(R.id.existing_locations_container);
+        googleLocationsContainer = (LinearLayout) findViewById(R.id.google_locations_container);
+        existingLocationsContainer = (LinearLayout) findViewById(R.id.existing_locations_container);
 
         editTextSearchBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -83,24 +86,37 @@ public class SearchLocationActivity extends AppCompatActivity {
                  * TODO Move to runnable (?) and control timed requests so Google API won't be spammed with requests
                  */
 
-                if(locationSuggestionsListenableFuture != null){
+                if (listenableFutureCreatedCallback != null) {
+                    listenableFutureCreatedCallback.canceled = true;
+                }
+                if (locationSuggestionsListenableFuture != null) {
                     locationSuggestionsListenableFuture.cancel(true);
                 }
 
-                locationSuggestionsListenableFuture = LocationUtilities.getLocationSuggestionsFuture(activity,
-                        s.toString(), latitude, longitude, mClient);
-
-                Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
                     @Override
-                    public void onSuccess(ServiceFilterResponse result) {
-                        populateListsFromResponse(result.getContent());
-                    }
+                    public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                        if (!this.canceled) {
 
-                    @Override
-                    public void onFailure(Throwable t) {
+                            locationSuggestionsListenableFuture = listenableFuture;
+                            Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                                @Override
+                                public void onSuccess(ServiceFilterResponse result) {
+                                    populateListsFromResponse(result.getContent());
+                                }
 
+                                @Override
+                                public void onFailure(Throwable t) {
+
+                                }
+                            });
+                        }
                     }
-                });
+                };
+
+                LocationUtilities.getLocationSuggestionsFuture(activity, s.toString(),
+                        latitude, longitude, mClient, listenableFutureCreatedCallback);
+
             }
         });
 
@@ -120,22 +136,30 @@ public class SearchLocationActivity extends AppCompatActivity {
         latitude = String.valueOf(userLocation.getLatitude());
         longitude = String.valueOf(userLocation.getLongitude());
 
+        listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
+            @Override
+            public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                if (!this.canceled) {
+
+                    locationSuggestionsListenableFuture = listenableFuture;
+                    Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                        @Override
+                        public void onSuccess(ServiceFilterResponse result) {
+                            populateListsFromResponse(result.getContent());
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+
+                        }
+                    });
+                }
+            }
+        };
 
         //Initial request, doesn't require a search query
-        locationSuggestionsListenableFuture = LocationUtilities.getLocationSuggestionsFuture(activity,
-                latitude, longitude, mClient);
-
-        Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
-            @Override
-            public void onSuccess(ServiceFilterResponse result) {
-                populateListsFromResponse(result.getContent());
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        });
+        LocationUtilities.getLocationSuggestionsFuture(activity, latitude,
+                longitude, mClient, listenableFutureCreatedCallback);
     }
 
     public void returnSelectedLocation() {
@@ -187,15 +211,15 @@ public class SearchLocationActivity extends AppCompatActivity {
         googleLocationsContainer.setVisibility(View.VISIBLE);
         existingLocationsContainer.setVisibility(View.VISIBLE);
 
-        if(locationPredictions.googleLocations.isEmpty()){
+        if (locationPredictions.googleLocations.isEmpty()) {
             googleLocationsContainer.setVisibility(View.GONE);
         }
-        if(locationPredictions.existingLocations.isEmpty()){
+        if (locationPredictions.existingLocations.isEmpty()) {
             existingLocationsContainer.setVisibility(View.GONE);
         }
     }
 
-    private void getAndReturnGoogleDetails(String placeId){
+    private void getAndReturnGoogleDetails(String placeId) {
         ServiceFilterResponseCallback locationRetrievedResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
@@ -227,23 +251,30 @@ public class SearchLocationActivity extends AppCompatActivity {
                     latitude = String.valueOf(userLocation.getLatitude());
                     longitude = String.valueOf(userLocation.getLongitude());
 
+                    listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
+                        @Override
+                        public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                            if (!this.canceled) {
+
+                                locationSuggestionsListenableFuture = listenableFuture;
+                                Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                                    @Override
+                                    public void onSuccess(ServiceFilterResponse result) {
+                                        populateListsFromResponse(result.getContent());
+                                    }
+
+                                    @Override
+                                    public void onFailure(Throwable t) {
+
+                                    }
+                                });
+                            }
+                        }
+                    };
 
                     //Initial request, doesn't require a search query
-                    locationSuggestionsListenableFuture = LocationUtilities.getLocationSuggestionsFuture(activity,
-                            latitude, longitude, mClient);
-
-                    Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
-                        @Override
-                        public void onSuccess(ServiceFilterResponse result) {
-                            populateListsFromResponse(result.getContent());
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-
-                        }
-                    });
-
+                    LocationUtilities.getLocationSuggestionsFuture(activity, latitude,
+                            longitude, mClient, listenableFutureCreatedCallback);
                 }
                 break;
             }

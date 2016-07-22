@@ -36,6 +36,8 @@ public class SelectCategoriesActivity extends AppCompatActivity {
 
     List<Category> selectedCategories;
     ListenableFuture<ServiceFilterResponse> categoriesListenableFuture;
+    ListenableFutureCreatedCallback listenableFutureCreatedCallback;
+    String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +45,12 @@ public class SelectCategoriesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_select_categories);
 
         activity = this;
-        mClient = ((GlobalApplication)getApplication()).getmClient();
-        editTextSearchCategories = (EditText)findViewById(R.id.edittext_search_categories);
-        listViewCategories = (ListView)findViewById(R.id.listview_categories);
+        mClient = GlobalApplication.getmClient();
+        editTextSearchCategories = (EditText) findViewById(R.id.edittext_search_categories);
+        listViewCategories = (ListView) findViewById(R.id.listview_categories);
 
         selectedCategories = (List<Category>) getIntent().getSerializableExtra("categories");
-        if(selectedCategories == null){
+        if (selectedCategories == null) {
             selectedCategories = new ArrayList<>();
         }
 
@@ -68,48 +70,80 @@ public class SelectCategoriesActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(categoriesListenableFuture != null){
+
+                query = editTextSearchCategories.getText().toString();
+
+                if (listenableFutureCreatedCallback != null) {
+                    listenableFutureCreatedCallback.canceled = true;
+                }
+                if (categoriesListenableFuture != null) {
                     categoriesListenableFuture.cancel(true);
                 }
-                categoriesListenableFuture = CategoryUtilities.getCategoriesFuture(activity, s.toString(), mClient);
-                Futures.addCallback(categoriesListenableFuture, new FutureCallback<ServiceFilterResponse>() {
-                    @Override
-                    public void onSuccess(ServiceFilterResponse result) {
-                        List<Category> categoriesResult = new Gson().fromJson(result.getContent(), new TypeToken<List<Category>>() {
-                        }.getType());
-                        populateCategoryList(categoriesResult);
-                    }
+                if (query.equals("")) {
+                    listViewCategories.setAdapter(null);
+                    //searchingUsersProgress.setVisibility(View.GONE);
+                    return;
+                }
 
+                listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                        if (!this.canceled) {
 
+                            categoriesListenableFuture = listenableFuture;
+                            Futures.addCallback(categoriesListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                                @Override
+                                public void onSuccess(ServiceFilterResponse result) {
+                                    List<Category> categoriesResult = new Gson().fromJson(result.getContent(), new TypeToken<List<Category>>() {
+                                    }.getType());
+                                    populateCategoryList(categoriesResult);
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+
+                                }
+                            });
+                        }
                     }
-                });
+                };
+
+                CategoryUtilities.getCategoriesFuture(activity, query, mClient, listenableFutureCreatedCallback);
             }
         });
 
-        categoriesListenableFuture = CategoryUtilities.getCategoriesFuture(activity, "", mClient);
-        Futures.addCallback(categoriesListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+        // Get all categories as an initial request
+        listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
             @Override
-            public void onSuccess(ServiceFilterResponse result) {
-                System.out.println(result.getContent());
-                List<Category> categoriesResult = new Gson().fromJson(result.getContent(), new TypeToken<List<Category>>() {
-                }.getType());
-                populateCategoryList(categoriesResult);
-            }
+            public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                if (!this.canceled) {
 
-            @Override
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
+                    categoriesListenableFuture = listenableFuture;
+                    Futures.addCallback(categoriesListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                        @Override
+                        public void onSuccess(ServiceFilterResponse result) {
+                            List<Category> categoriesResult = new Gson().fromJson(result.getContent(), new TypeToken<List<Category>>() {
+                            }.getType());
+                            populateCategoryList(categoriesResult);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+
+                        }
+                    });
+                }
             }
-        });
+        };
+
+        CategoryUtilities.getCategoriesFuture(activity, "", mClient, listenableFutureCreatedCallback);
     }
 
-    private void populateCategoryList(List<Category> categories){
+    private void populateCategoryList(List<Category> categories) {
 
-        for (Category category: categories) {
-            for(Category selectedCategory: selectedCategories){
-                if(selectedCategory.id.equals(category.id)){
+        for (Category category : categories) {
+            for (Category selectedCategory : selectedCategories) {
+                if (selectedCategory.id.equals(category.id)) {
                     category.category_is_selected = true;
                 }
             }
@@ -125,7 +159,7 @@ public class SelectCategoriesActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Category selectedCategory = (Category) parent.getItemAtPosition(position);
 
-                for (Category category: selectedCategories) {
+                for (Category category : selectedCategories) {
                     if (category.id.equals(selectedCategory.id)) {
                         ((CheckBox) view.findViewById(R.id.category_is_selected)).setChecked(false);
                         selectedCategories.remove(category);

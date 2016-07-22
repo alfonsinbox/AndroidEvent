@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.databinding.BindingConversion;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
+import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.alfon.eventtest.databinding.ActivityEventDetailsBinding;
@@ -18,6 +22,7 @@ import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
+import java.io.File;
 import java.util.Calendar;
 
 public class EventDetailsActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
@@ -26,7 +31,13 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
     MobileServiceClient mClient;
 
     Event detailedEvent;
+
     ActivityEventDetailsBinding activityEventDetailsBinding;
+
+    ImageView eventImageView;
+    Uri uploadImageUri;
+
+    AsyncTaskCallback failedLoadingImageCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +45,22 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
 
         activity = this;
         mClient = GlobalApplication.getmClient();
+
+        detailedEvent = GlobalApplication.currentlyDetailedEvent;
+
+        failedLoadingImageCallback = new AsyncTaskCallback() {
+            @Override
+            public void asyncTaskCallbackDone(Boolean success) {
+                if(!success){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            eventImageView.setImageResource(R.drawable.no_image_banner);
+                        }
+                    });
+                }
+            }
+        };
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer())
@@ -54,17 +81,54 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
                     detailedEvent = gson.fromJson(response.getContent(), Event.class);
                     activityEventDetailsBinding = DataBindingUtil.setContentView(activity, R.layout.activity_event_details);
                     activityEventDetailsBinding.setEvent(detailedEvent);
+
+                    eventImageView = (ImageView) findViewById(R.id.event_details_image_view);
+                    new DownloadImageTask(eventImageView, failedLoadingImageCallback).execute(detailedEvent.mainImageUrl);
+
                     System.out.println("WAS FETCHED - " + gson.toJson(detailedEvent));
                 }
             };
             String eventId = getIntent().getExtras().getString(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID);
             EventUtilities.getEventDetails(activity, eventId, mClient, fetchedEventResponseCallback);
+
         } else {
             detailedEvent = (Event) getIntent().getSerializableExtra("event");
             activityEventDetailsBinding = DataBindingUtil.setContentView(activity, R.layout.activity_event_details);
             activityEventDetailsBinding.setEvent(detailedEvent);
+
+            eventImageView = (ImageView) findViewById(R.id.event_details_image_view);
+            new DownloadImageTask(eventImageView, failedLoadingImageCallback).execute(detailedEvent.mainImageUrl);
+
             System.out.println("WAS PASSED - " + gson.toJson(detailedEvent));
         }
+
+    }
+
+    private void refreshEvent() {
+        ServiceFilterResponseCallback fetchedEventResponseCallback = new ServiceFilterResponseCallback() {
+            @Override
+            public void onResponse(ServiceFilterResponse response, Exception exception) {
+                if (exception != null) {
+                    exception.printStackTrace();
+                    return;
+                }
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer())
+                        .create();
+                System.out.println("RESULTS " + response.getContent());
+                detailedEvent = gson.fromJson(response.getContent(), Event.class);
+                activityEventDetailsBinding = DataBindingUtil.setContentView(activity, R.layout.activity_event_details);
+                activityEventDetailsBinding.setEvent(detailedEvent);
+
+                eventImageView = (ImageView) findViewById(R.id.event_details_image_view);
+                new DownloadImageTask(eventImageView, failedLoadingImageCallback).execute(detailedEvent.mainImageUrl);
+
+                System.out.println("WAS FETCHED - " + gson.toJson(detailedEvent));
+            }
+        };
+        String eventId = detailedEvent.id;
+        EventUtilities.getEventDetails(activity, eventId, mClient, fetchedEventResponseCallback);
+
     }
 
     public void addUserAsAttendant(View view) {
@@ -84,7 +148,7 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
                 Toast.makeText(activity, "ATTEND SUCCESS", Toast.LENGTH_SHORT).show();
             }
         };
-        new EventUtilities().addAttendantToEvent(activity, detailedEvent.id, mClient, attendantAddedResponseCallback);
+        EventUtilities.addAttendantToEvent(activity, detailedEvent.id, mClient, attendantAddedResponseCallback);
     }
 
     public void removeUserAsAttendant(View view) {
@@ -104,7 +168,7 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
                 Toast.makeText(activity, "DONT ATTEND SUCCESS", Toast.LENGTH_SHORT).show();
             }
         };
-        new EventUtilities().removeAttendantFromEvent(activity, detailedEvent.id, mClient, attendantAddedResponseCallback);
+        EventUtilities.removeAttendantFromEvent(activity, detailedEvent.id, mClient, attendantAddedResponseCallback);
     }
 
     public static String dateToStringConversion(Calendar calendar) {
@@ -166,6 +230,7 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
                 popup.getMenu().add(1, R.id.menu_item_dont_attend_event, 1, R.string.menu_item_dont_attend_event);
             }
         }
+        popup.getMenu().add(1, R.id.menu_item_navigate_to_event, 1, R.string.menu_item_navigate_to_event);
         popup.show();
     }
 
@@ -192,6 +257,13 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
         removeUserAsAttendant(null);
     }
 
+    private void startGoogleMapsNavigateIntent() {
+        Uri gmmIntentUri = Uri.parse(String.format("google.navigation:q=%s,%s", detailedEvent.location.latitude, detailedEvent.location.longitude));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+    }
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
@@ -210,8 +282,48 @@ public class EventDetailsActivity extends AppCompatActivity implements PopupMenu
             case R.id.menu_item_dont_attend_event:
                 dontAttendEvent();
                 return true;
+            case R.id.menu_item_navigate_to_event:
+                startGoogleMapsNavigateIntent();
+                return true;
             default:
                 return false;
         }
+    }
+
+    public void startCameraIntent(View view) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photo = FileUtilities.createTemporaryFile(activity, "IMG_" + System.currentTimeMillis() + ".jpg");
+        uploadImageUri = Uri.fromFile(photo);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uploadImageUri);
+
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, GlobalApplication.REQUEST_CODE_CAMERA_INTENT_TAKE_PICTURE);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_TAKE_PICTURE:
+                    uploadImageToEvent();
+                    break;
+            }
+        }
+    }
+
+    private void uploadImageToEvent() {
+        EventUtilities.UploadEventImageTask uploadEventImageTask = new EventUtilities.UploadEventImageTask(activity, uploadImageUri, detailedEvent, new AsyncTaskCallback() {
+            @Override
+            public void asyncTaskCallbackDone(Boolean success) {
+                refreshEvent();
+            }
+        });
+        uploadEventImageTask.execute();
     }
 }

@@ -36,6 +36,8 @@ public class SelectUsersActivity extends AppCompatActivity {
 
     List<User> selectedUsers;
     ListenableFuture<ServiceFilterResponse> usersListenableFuture;
+    ListenableFutureCreatedCallback listenableFutureCreatedCallback;
+    String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,7 @@ public class SelectUsersActivity extends AppCompatActivity {
         listViewUsers = (ListView) findViewById(R.id.listview_users);
         userUtilities = new UserUtilities();
         activity = this;
-        mClient = ((GlobalApplication) getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
 
         selectedUsers = (List<User>) getIntent().getSerializableExtra("users");
 
@@ -71,23 +73,45 @@ public class SelectUsersActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+
+                query = editTextSearchUsers.getText().toString();
+
+                if(listenableFutureCreatedCallback != null){
+                    listenableFutureCreatedCallback.canceled = true;
+                }
                 if (usersListenableFuture != null) {
                     usersListenableFuture.cancel(true);
                 }
-                usersListenableFuture = userUtilities.getUsersFromStringFuture(activity, editTextSearchUsers.getText().toString(), mClient);
-                Futures.addCallback(usersListenableFuture, new FutureCallback<ServiceFilterResponse>() {
-                    @Override
-                    public void onSuccess(ServiceFilterResponse result) {
-                        List<User> usersResult = new Gson().fromJson(result.getContent(), new TypeToken<List<User>>() {
-                        }.getType());
-                        populateUserList(usersResult);
-                    }
+                if (query.equals("")) {
+                    listViewUsers.setAdapter(null);
+                    //searchingUsersProgress.setVisibility(View.GONE);
+                    return;
+                }
 
+                listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                        if(!this.canceled) {
 
+                            usersListenableFuture = listenableFuture;
+                            Futures.addCallback(usersListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                                @Override
+                                public void onSuccess(ServiceFilterResponse result) {
+                                    List<User> usersResult = new Gson().fromJson(result.getContent(), new TypeToken<List<User>>() {
+                                    }.getType());
+                                    populateUserList(usersResult);
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+
+                                }
+                            });
+                        }
                     }
-                });
+                };
+
+                userUtilities.getUsersFromStringFuture(activity, query, mClient, listenableFutureCreatedCallback);
             }
         });
     }

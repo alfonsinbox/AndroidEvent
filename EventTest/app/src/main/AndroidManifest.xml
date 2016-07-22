@@ -62,12 +62,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EventDetailsActivity" />
-        <activity android:name=".UserOverviewActivity" />
+        <activity android:name=".EventDetailsActivity"
+            android:parentActivityName="com.example.alfon.eventtest.MainActivity" >
+        </activity>
+        <activity android:name=".UserOverviewActivity"
+            android:parentActivityName="com.example.alfon.eventtest.MainActivity"  />
         <activity android:name=".EventsMapActivity" />
         <activity
             android:name=".CreateEventActivity"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
         <activity android:name=".SelectLocationActivity" />
         <activity
             android:name=".SelectUsersActivity"
@@ -81,7 +85,11 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity android:name=".ConfirmationInformationActivity" />
         <activity android:name=".CancelEventActivity" />
-        <activity android:name=".ForgotPasswordActivity"></activity>
+        <activity android:name=".ForgotPasswordActivity" />
+
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+
+        <service android:name=".TokenCheckService" />
     </application>
 
 </manifest>

@@ -22,4 +22,8 @@
         android:id="@+id/menu_item_dont_attend_event"
         android:title="@string/menu_item_dont_attend_event" />
 
+    <item
+        android:id="@+id/menu_item_navigate_to_event"
+        android:title="@string/menu_item_navigate_to_event" />
+
 </menu>

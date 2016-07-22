@@ -1,72 +1,36 @@
 package com.example.alfon.eventtest;
 
-import android.*;
 import android.app.Activity;
-import android.app.Notification;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ConfigurationInfo;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Debug;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
-import android.util.Xml;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.List;
 
 public class SignInActivity extends AppCompatActivity {
 
     Activity activity;
     MobileServiceClient mClient;
 
-    EditText usernameEditText;
+    EditText loginNameEditText;
     EditText passwordEditText;
     String gcmRegistrationId;
 
     RelativeLayout signInButton;
     RelativeLayout signingInProgress;
-
-    String encodedImage;
-    Uri mImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,48 +40,55 @@ public class SignInActivity extends AppCompatActivity {
         activity = this;
 
         // Check if user is logged in
-        if (!AuthUtilities.getLocalToken(activity).equals("")) {
-            ServiceFilterResponseCallback tokenRefreshedResponseCallback = new ServiceFilterResponseCallback() {
-                @Override
-                public void onResponse(ServiceFilterResponse response, Exception exception) {
-                    if (exception != null) {
-                        // User was inactive for too long
-                        setContentView(R.layout.activity_sign_in);
-                        usernameEditText = (EditText) findViewById(R.id.edittext_username);
-                        passwordEditText = (EditText) findViewById(R.id.edittext_password);
-                        signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
-                        signingInProgress = (RelativeLayout) findViewById(R.id.signing_in_progress);
+        if (!AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_REFRESH_TOKEN, activity).equals("")) {
 
-                        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                            @Override
-                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                                    signIn(v);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
+            System.out.println("User has previously logged in");
+            // Check if user has access_token from before and the it hasn't expired yet
+            if (!AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_ACCESS_TOKEN, activity).equals("")
+                    && AuthUtilities.accessTokenValidTimeLeft(activity) > 60) {
 
-                        if (NotificationUtilities.isDeviceRegistered(activity)) {
-                            deleteCurrentNotificationRegistration();
+                System.out.println("Access token exists and is valid");
+                // Renew access_token
+                ServiceFilterResponseCallback renewedAccessTokenResponseCallback = new ServiceFilterResponseCallback() {
+                    @Override
+                    public void onResponse(ServiceFilterResponse response, Exception exception) {
+                        if (exception != null) {
+                            exception.printStackTrace();
                         }
+                        AccessToken accessToken = new Gson().fromJson(response.getContent(), AccessToken.class);
+                        AuthUtilities.saveAccessToken(accessToken.token, accessToken.expires, activity);
 
-                        return;
+                        navigateCorrectActivityFinishThis();
                     }
-                    String token = new Gson().fromJson(response.getContent(), JsonObject.class).get(GlobalApplication.PREFERENCE_USER_TOKEN).getAsString();
-                    AuthUtilities.saveToken(token, activity);
+                };
+                AuthUtilities.renewAccessToken(activity, mClient, renewedAccessTokenResponseCallback);
+            } else {
 
-                    navigateCorrectActivityFinishThis();
-                }
-            };
+                System.out.println("No valid access token");
+                // Get access_token from refresh_token
+                ServiceFilterResponseCallback refreshedAccessTokenResponseCallback = new ServiceFilterResponseCallback() {
+                    @Override
+                    public void onResponse(ServiceFilterResponse response, Exception exception) {
+                        if (exception != null) {
+                            exception.printStackTrace();
+                        }
+                        AccessToken accessToken = new Gson().fromJson(response.getContent(), AccessToken.class);
+                        AuthUtilities.saveAccessToken(accessToken.token, accessToken.expires, activity);
+                        String a = AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_ACCESS_TOKEN, activity);
+                        System.out.println(a);
 
-            // Refresh token
-            AuthUtilities.refreshToken(activity, mClient, tokenRefreshedResponseCallback);
+                        navigateCorrectActivityFinishThis();
+                    }
+                };
+                AuthUtilities.refreshAccessToken(activity, mClient, refreshedAccessTokenResponseCallback);
+            }
         } else {
+
+            System.out.println("User has not logged in");
+            //User was not logged in
             setContentView(R.layout.activity_sign_in);
 
-            usernameEditText = (EditText) findViewById(R.id.edittext_username);
+            loginNameEditText = (EditText) findViewById(R.id.edittext_login_name);
             passwordEditText = (EditText) findViewById(R.id.edittext_password);
 
             signInButton = (RelativeLayout) findViewById(R.id.button_sign_in);
@@ -136,7 +107,7 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    public void deleteCurrentNotificationRegistration() {
+    /*public void deleteCurrentNotificationRegistration() {
         final ServiceFilterResponseCallback deletedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
@@ -150,23 +121,24 @@ public class SignInActivity extends AppCompatActivity {
         };
         String registrationId = NotificationUtilities.getRegistrationId(activity);
         NotificationUtilities.deleteRegistration(activity, registrationId, mClient, deletedNotificationRegistrationResponseCallback);
-    }
+    }*/
 
     public void signIn(View view) {
-        System.out.println("PREVIOUS TOKEN: " + AuthUtilities.getLocalToken(activity));
-
         signInButton.setVisibility(View.INVISIBLE);
         signingInProgress.setVisibility(View.VISIBLE);
+
+        System.out.println("Signing in");
 
         final ServiceFilterResponseCallback finishedNotificationRegistrationResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
+                System.out.println("Returned from registering for push");
                 if (exception != null) {
                     exception.printStackTrace();
-                    signInButton.setVisibility(View.VISIBLE);
+                    /*signInButton.setVisibility(View.VISIBLE);
                     signingInProgress.setVisibility(View.INVISIBLE);
                     Toast.makeText(activity, R.string.could_not_sign_in_toast, Toast.LENGTH_SHORT).show();
-                    return;
+                    return;*/
                 }
 
                 Toast.makeText(activity, R.string.device_registered_push, Toast.LENGTH_SHORT).show();
@@ -184,9 +156,10 @@ public class SignInActivity extends AppCompatActivity {
             }
         };
 
-        ServiceFilterResponseCallback gotUserTokenResponseCallback = new ServiceFilterResponseCallback() {
+        ServiceFilterResponseCallback gotRefreshTokenResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
+                System.out.println("Returned from getting refresh token");
                 if (exception != null) {
                     exception.printStackTrace();
                     signInButton.setVisibility(View.VISIBLE);
@@ -195,24 +168,19 @@ public class SignInActivity extends AppCompatActivity {
                     return;
                 }
 
-                String token = new Gson().fromJson(response.getContent(), JsonObject.class).get("token").getAsString();
+                RefreshToken refreshToken = new Gson().fromJson(response.getContent(), RefreshToken.class);
 
                 try {
-                    System.out.println("TOKEN WAS RETRIEVED: " + token);
-                    AuthUtilities.saveToken(token, activity);
+                    System.out.println("TOKEN WAS RETRIEVED: " + refreshToken.token);
+                    AuthUtilities.saveRefreshToken(refreshToken.token, activity);
 
-                    if (!AuthUtilities.getLocalToken(activity).equals("")) {
-                        boolean pushAlreadyRegistered = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getBoolean(GlobalApplication.PREFERENCE_DEVICE_REGISTERED_FOR_PUSH, false);
-                        if (!pushAlreadyRegistered) {
-                            // Register device for push notifications
-                            gcmRegistrationId = activity
-                                    .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
-                                    .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
+                    if (!AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_REFRESH_TOKEN, activity).equals("")) {
+                        // Register device for push notifications
+                        gcmRegistrationId = activity
+                                .getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, Context.MODE_PRIVATE)
+                                .getString(GlobalApplication.PREFERENCE_GCM_REGISTRATION_ID, "");
 
-                            NotificationUtilities.registerGcmId(activity.getApplicationContext(), gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
-                        } else {
-                            navigateCorrectActivityFinishThis();
-                        }
+                        NotificationUtilities.registerGcmId(activity, gcmRegistrationId, GlobalApplication.mClient, finishedNotificationRegistrationResponseCallback);
                     }
 
                 } catch (Exception ex) {
@@ -221,11 +189,13 @@ public class SignInActivity extends AppCompatActivity {
             }
         };
 
-        AuthUtilities.requestToken(mClient, usernameEditText.getText().toString(), passwordEditText.getText().toString(), gotUserTokenResponseCallback);
+        AuthUtilities.requestRefreshToken(mClient, loginNameEditText.getText().toString(),
+                passwordEditText.getText().toString(), gotRefreshTokenResponseCallback);
     }
 
     private void navigateCorrectActivityFinishThis() {
         Intent intent;
+        TaskStackBuilder stackBuilder;
         String activityRedirect;
 
         try {
@@ -236,6 +206,8 @@ public class SignInActivity extends AppCompatActivity {
 
         if (activityRedirect == null) {
             intent = new Intent(activity, MainActivity.class);
+            stackBuilder = TaskStackBuilder.create(this)
+                    .addNextIntent(intent);
         } else {
             switch (activityRedirect) {
                 case "UserOverview":
@@ -244,6 +216,9 @@ public class SignInActivity extends AppCompatActivity {
                             getIntent().getExtras().getBoolean(GlobalApplication.EXTRA_USEROVERVIEW_FETCH_DATA));
                     intent.putExtra(GlobalApplication.EXTRA_USEROVERVIEW_USER_ID,
                             getIntent().getExtras().getString(GlobalApplication.EXTRA_USEROVERVIEW_USER_ID));
+                    stackBuilder = TaskStackBuilder.create(this)
+                            .addParentStack(UserOverviewActivity.class)
+                            .addNextIntent(intent);
                     break;
                 case "EventDetails":
                     intent = new Intent(activity, EventDetailsActivity.class);
@@ -251,14 +226,20 @@ public class SignInActivity extends AppCompatActivity {
                             getIntent().getExtras().getBoolean(GlobalApplication.EXTRA_EVENTDETAILS_FETCH_DATA));
                     intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID,
                             getIntent().getExtras().getString(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID));
+                    stackBuilder = TaskStackBuilder.create(this)
+                            .addParentStack(EventDetailsActivity.class)
+                            .addNextIntent(intent);
                     break;
                 default:
                     intent = new Intent(activity, MainActivity.class);
+                    stackBuilder = TaskStackBuilder.create(this)
+                            .addNextIntent(intent);
                     break;
             }
         }
+        //startActivity(intent);
+        stackBuilder.startActivities();
 
-        startActivity(intent);
         // Finish activity so you can't navigate back to it
         finish();
     }
@@ -271,95 +252,6 @@ public class SignInActivity extends AppCompatActivity {
     public void navigateCreateAccount(View view) {
         Intent intent = new Intent(this, CreateUserActivity.class);
         startActivity(intent);
-    }
-
-    public void startCamera(View view) {
-
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File photo;
-        try {
-            // place where to store camera taken picture
-            photo = createTemporaryFile();
-        } catch (Exception e) {
-            Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        mImageUri = Uri.fromFile(photo);
-        System.out.println(mImageUri.getEncodedPath());
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-        //start camera intent
-
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, 1);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            new LongOperation().execute();
-        }
-    }
-
-    private String postImage(File image) {
-        String requestURL = "https://theeventapp.azurewebsites.net/api/image/create?ZUMO-API-VERSION=2.0.0";
-        String charset = "UTF-8";
-        try {
-            MultipartUtility multipart = new MultipartUtility(activity, requestURL, charset);
-
-            multipart.addFilePart("file", image);
-
-            String completeResponse = "";
-            List<String> response = multipart.finish();
-            System.out.println("SERVER REPLIED:");
-            for (String line : response) {
-                completeResponse += line;
-                System.out.println("Upload Files Response:::" + line);
-            }
-            return completeResponse;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "Something went wrong!";
-    }
-
-    private class LongOperation extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            return postImage(grabImage(mImageUri));
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            System.out.println(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    private File createTemporaryFile() throws Exception {
-        File tempDir = getExternalFilesDir("");
-        System.out.println("I got an abs path: " + tempDir.getAbsolutePath());
-        if (!tempDir.exists()) {
-            tempDir.mkdirs();
-        }
-        return new File(tempDir, "IMG_" + System.currentTimeMillis() + ".jpg");
-    }
-
-    public File grabImage(Uri imageUri) {
-        try {
-            return new File(imageUri.getPath());
-        } catch (Exception e) {
-            Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT).show();
-        }
-        return null;
     }
 
 }

@@ -83,14 +83,15 @@ public class MainActivity extends AppCompatActivity  {
 
                 NotificationUtilities.setDeviceRegisteredForNotifications(activity, false);
 
-                if(AuthUtilities.removeToken(activity)){
+                if(AuthUtilities.removeToken(GlobalApplication.PREFERENCE_USER_REFRESH_TOKEN, activity)
+                        && AuthUtilities.removeToken(GlobalApplication.PREFERENCE_USER_ACCESS_TOKEN, activity)){
                     Intent intent = new Intent(activity, SignInActivity.class);
                     startActivity(intent);
                     finish();
                 }
             }
         };
-        String registrationId = activity.getSharedPreferences(GlobalApplication.PREFERENCES_USERSETTINGS, MODE_PRIVATE).getString(GlobalApplication.PREFERENCE_REGISTRATION_ID, "");
+        String registrationId = NotificationUtilities.getRegistrationId(activity);
         NotificationUtilities.deleteRegistration(activity, registrationId, mClient, deletedRegistrationResponseCallback);
     }
 }

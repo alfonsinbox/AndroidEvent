@@ -116,6 +116,7 @@ public class EventsMapActivity extends AppCompatActivity implements OnMapReadyCa
             userLocation.setLongitude(0);
         }
 
+        // TODO The value '8000' is search radius, change this when zooming out or moving (ask before refreshing?)
         EventUtilities.getEventsForMap(activity, String.valueOf(userLocation.getLatitude()),
                 String.valueOf(userLocation.getLongitude()), "8000", mClient, serviceFilterResponseCallback);
 

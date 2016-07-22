@@ -16,11 +16,11 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/edittext_username"
+            android:id="@+id/edittext_login_name"
             style="@style/StandardEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/username_edittext_hint"
+            android:hint="@string/login_name_edittext_hint"
             android:inputType="text" />
 
         <EditText
@@ -86,25 +86,6 @@
             android:text="@string/forgot_password_button_text" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/camera_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_container"
-        android:onClick="startCamera"
-        android:text="Kamera" />
-
-    <ImageView
-        android:id="@+id/mImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/camera_btn" />
-    <TextView
-        android:id="@+id/mTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/mImageView" />
 
     <LinearLayout
         android:layout_width="match_parent"

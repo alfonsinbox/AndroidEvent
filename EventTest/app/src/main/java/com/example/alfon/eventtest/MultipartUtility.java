@@ -45,7 +45,8 @@ public class MultipartUtility {
         httpConn.setDoInput(true);
         httpConn.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
-        httpConn.setRequestProperty("X-ZUMO-AUTH", AuthUtilities.getLocalToken(activity));
+        // TODO Must check token
+        //httpConn.setRequestProperty("X-ZUMO-AUTH", AuthUtilities.getLocalRefreshToken(activity));
 
         outputStream = httpConn.getOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
@@ -60,7 +61,8 @@ public class MultipartUtility {
      */
     public void addFormField(String name, String value) {
         writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
+        //writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
+        writer.append("Content-Disposition: form-data; name=" + name + "")
                 .append(LINE_FEED);
         writer.append("Content-Type: text/plain; charset=" + charset).append(
                 LINE_FEED);
@@ -150,6 +152,7 @@ public class MultipartUtility {
 
         // checks server's status code first
         int status = httpConn.getResponseCode();
+        String responseMessage = httpConn.getResponseMessage();
         if (status == HttpURLConnection.HTTP_OK) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     httpConn.getInputStream()));
@@ -160,7 +163,12 @@ public class MultipartUtility {
             reader.close();
             httpConn.disconnect();
         } else {
-            throw new IOException("Server returned non-OK status: " + status);
+            BufferedReader r = new BufferedReader(new InputStreamReader(httpConn.getErrorStream()));
+            String line;
+            while ((line = r.readLine()) != null) {
+                System.out.println(line);
+            }
+            throw new IOException("Server returned non-OK status: " + status + " - " + responseMessage);
         }
         return response;
     }

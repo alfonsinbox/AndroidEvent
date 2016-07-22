@@ -10,9 +10,9 @@ public class OnApplicationStart extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if(!this.getSharedPreferences("UserSettings", 0).getString("token", "").equals("")) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+        //if(!this.getSharedPreferences("UserSettings", 0).getString("token", "").equals("")) {
+        //    Intent intent = new Intent(this, MainActivity.class);
+        //    startActivity(intent);
+        //}
     }
 }

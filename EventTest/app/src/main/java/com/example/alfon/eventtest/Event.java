@@ -56,5 +56,8 @@ public class Event implements Serializable{
     @SerializedName("invited_ids")
     public List<String> invitedIds;
 
+    @SerializedName("main_image_url")
+    public String mainImageUrl;
+
     public List<Category> categories;
 }

@@ -95,7 +95,7 @@ public class MyEventsFragment extends Fragment {
             }
         };
 
-        new EventUtilities().getMyEvents(activity, ((GlobalApplication) activity.getApplicationContext()).getmClient(), eventsRetrievedResponseCallback);
+        EventUtilities.getMyEvents(activity, GlobalApplication.getmClient(), eventsRetrievedResponseCallback);
     }
 
     @Override

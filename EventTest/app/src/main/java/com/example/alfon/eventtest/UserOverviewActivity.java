@@ -7,32 +7,28 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alfon.eventtest.databinding.ActivityUserOverviewBinding;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
+import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -48,8 +44,11 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
     User detailUser;
     RelativeLayout userInterestsRelativeLayout;
 
-    UrlImageView profilePictureImageView;
+    ImageView profilePictureImageView;
+    Uri originalImageUri;
     Uri uploadImageUri;
+
+    AsyncTaskCallback failedLoadingImageCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,24 +57,34 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
 
         activity = this;
         mClient = GlobalApplication.getmClient();
+
+        failedLoadingImageCallback = new AsyncTaskCallback() {
+            @Override
+            public void asyncTaskCallbackDone(Boolean success) {
+                // TODO Set default image...?
+            }
+        };
+
         authUtilities = new AuthUtilities();
 
         activityUserOverviewBinding = DataBindingUtil.setContentView(activity, R.layout.activity_user_overview);
 
         userInterestsRelativeLayout = (RelativeLayout) findViewById(R.id.user_interests_button);
 
-        profilePictureImageView = (UrlImageView) findViewById(R.id.profile_picture);
+        profilePictureImageView = (ImageView) findViewById(R.id.profile_picture);
         profilePictureImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photo = FileUtilities.createTemporaryFile(activity, "IMG_" + System.currentTimeMillis() + ".jpg");
-                uploadImageUri = Uri.fromFile(photo);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uploadImageUri);
+                File squarePhoto = FileUtilities.createTemporaryFile(activity, "SQUARE_IMG_" + System.currentTimeMillis() + ".jpg");
+                originalImageUri = Uri.fromFile(photo);
+                uploadImageUri = Uri.fromFile(squarePhoto);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, originalImageUri);
 
                 // Start camera intent if it exists
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, GlobalApplication.REQUEST_CODE_CAMERA_INTENT_PROFILE_PICTURE);
+                    startActivityForResult(takePictureIntent, GlobalApplication.REQUEST_CODE_CAMERA_INTENT_TAKE_PICTURE);
                 }
 
             }
@@ -112,11 +121,11 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
         loadUser();
     }
 
-    private void loadUser(){
+    private void loadUser() {
         ServiceFilterResponseCallback userRetrievedResponseCallback = new ServiceFilterResponseCallback() {
             @Override
             public void onResponse(ServiceFilterResponse response, Exception exception) {
-                if(exception != null){
+                if (exception != null) {
                     exception.printStackTrace();
                     return;
                 }
@@ -129,10 +138,10 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
                     }
                 });
 
-                new DownloadImageTask(profilePictureImageView).execute(detailUser.profilePictureUrl);
+                new DownloadImageTask(profilePictureImageView, failedLoadingImageCallback).execute(detailUser.profilePictureUrl);
 
                 System.out.println(response.getContent());
-                System.out.println(detailUser.firstName + " " + detailUser.lastName);
+                System.out.println(detailUser.fullName);
             }
         };
 
@@ -141,13 +150,14 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
 
     public void onFragmentInteraction(Event selectedEvent) {
         Intent intent = new Intent(activity, EventDetailsActivity.class);
-        intent.putExtra("event", selectedEvent);
+        //intent.putExtra("event", selectedEvent);
+        intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_EVENT_ID, selectedEvent.id);
+        intent.putExtra(GlobalApplication.EXTRA_EVENTDETAILS_FETCH_DATA, true);
         startActivity(intent);
     }
 
     @BindingConversion
     public static String birthDateToYears(Date birthDate) {
-
         if (birthDate != null) {
             return String.valueOf(DateUtilities.differenceBetweenDatesInYears(birthDate, new Date())) + ", ";
         } else {
@@ -184,17 +194,144 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
                     }
                     UserUtilities.setInterests(activity, categoryIds, mClient, interestAddedResponseCallback);
                     break;
-                case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_PROFILE_PICTURE:
-                    UserUtilities.UploadProfilePictureTask uploadProfilePictureTask = new UserUtilities.UploadProfilePictureTask(activity, uploadImageUri, new AsyncTaskCallback() {
-                        @Override
-                        public void asyncTaskCallbackDone() {
-                            loadUser();
-                        }
-                    });
-                    uploadProfilePictureTask.execute();
+                case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_TAKE_PICTURE:
+
+                    //Intent cropIntent = new Intent("com.android.camera.action.CROP");
+
+                    //cropIntent.setDataAndType(originalImageUri, "image/*");
+                    //cropIntent.putExtra("crop", "true");
+                    //cropIntent.putExtra("aspectX", 1);
+                    //cropIntent.putExtra("aspectY", 1);
+                    //cropIntent.putExtra("return-data", true);
+                    ////cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, originalImageUri);
+                    //startActivityForResult(cropIntent, GlobalApplication.REQUEST_CODE_CAMERA_INTENT_CROP_PICTURE);
+                    Crop.of(originalImageUri, uploadImageUri).withAspect(1, 1).start(activity);
                     break;
+                case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_CROP_PICTURE:
+                    File image = FileUtilities.getImage(uploadImageUri);
+                    String filePath = image.getPath();
+                    Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+
+                    int x = bitmap.getWidth();
+                    int y = bitmap.getHeight();
+                    System.out.println(x + "X" + y);
+
+                    bitmap = FileUtilities.rotateBitmap(uploadImageUri.getPath());
+                    int dimen = bitmap.getWidth() > bitmap.getHeight() ? bitmap.getHeight() : bitmap.getWidth();
+                    bitmap = FileUtilities.getResizedBitmap(bitmap, dimen, dimen);
+
+                    x = bitmap.getWidth();
+                    y = bitmap.getHeight();
+                    System.out.println(x + "X" + y);
+
+                    //profilePictureImageView.setImageBitmap(bitmap);
+
+                    FileOutputStream out = null;
+
+                    try {
+                        out = new FileOutputStream(uploadImageUri.getPath());
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+                        // PNG is a lossless format, the compression factor (100) is ignored
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (out != null) {
+                                out.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    uploadCroppedImage();
+                    break;
+                /*case GlobalApplication.REQUEST_CODE_CAMERA_INTENT_CROP_PICTURE:
+
+                    //File image = FileUtilities.getImage(originalImageUri);
+                    //String filePath = image.getPath();
+                    //Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                    //profilePictureImageView.setImageBitmap(bitmap);
+
+                    // get the cropped bitmap
+                    try {
+                        Bundle extras = data.getExtras();
+                        Bitmap croppedImage = extras.getParcelable("data");
+
+                        //profilePictureImageView.setImageBitmap(croppedImage);
+
+                        FileOutputStream out = null;
+
+                        try {
+                            out = new FileOutputStream(originalImageUri.getPath());
+                            croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+                            // PNG is a lossless format, the compression factor (100) is ignored
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (out != null) {
+                                    out.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        //File image = FileUtilities.getImage(originalImageUri);
+                        //String filePath = image.getPath();
+                        //Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                        //profilePictureImageView.setImageBitmap(bitmap);
+                    } finally {
+                        final UserUtilities.UploadProfilePictureTask uploadProfilePictureTask = new UserUtilities.UploadProfilePictureTask(activity, originalImageUri, new AsyncTaskCallback() {
+                            @Override
+                            public void asyncTaskCallbackDone() {
+                                File fdelete = new File(originalImageUri.getPath());
+                                if (fdelete.exists()) {
+                                    if (fdelete.delete()) {
+                                        System.out.println("FILE DELETED");
+                                    } else {
+                                        System.out.println("FILE WAS NOT DELETED!!");
+                                    }
+                                }
+                                loadUser();
+                            }
+                        });
+                        uploadProfilePictureTask.execute();
+                    }
+                    break;*/
             }
         }
+    }
+
+    private void uploadCroppedImage() {
+        final UserUtilities.UploadProfilePictureTask uploadProfilePictureTask = new UserUtilities.UploadProfilePictureTask(activity, uploadImageUri, new AsyncTaskCallback() {
+            @Override
+            public void asyncTaskCallbackDone(Boolean success) {
+                if(success) {
+                    File fdelete = new File(originalImageUri.getPath());
+                    if (fdelete.exists()) {
+                        if (fdelete.delete()) {
+                            System.out.println("FILE DELETED");
+                        } else {
+                            System.out.println("FILE WAS NOT DELETED!!");
+                        }
+                    }
+                    fdelete = new File(uploadImageUri.getPath());
+                    if (fdelete.exists()) {
+                        if (fdelete.delete()) {
+                            System.out.println("FILE DELETED");
+                        } else {
+                            System.out.println("FILE WAS NOT DELETED!!");
+                        }
+                    }
+                    loadUser();
+                } else {
+                    Toast.makeText(activity, "Kunde inte ladda upp bilden", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        uploadProfilePictureTask.execute();
     }
 
 }

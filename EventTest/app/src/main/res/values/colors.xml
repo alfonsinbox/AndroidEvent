@@ -5,6 +5,7 @@
     <color name="colorAccent">#00C853</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlackDivider">#61000000</color>
+    <color name="colorWhiteSemiTransparent">#89FFFFFF</color>
 
     <color name="colorGridviewBorder">#00000000</color>
 

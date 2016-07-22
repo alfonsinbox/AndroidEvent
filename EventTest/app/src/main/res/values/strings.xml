@@ -10,7 +10,7 @@
     <string name="could_not_sign_out_toast">Kunde inte logga ut</string>
 
     <!--Strings for SignInActivity-->
-    <string name="username_edittext_hint">Användarnamn</string>
+    <string name="login_name_edittext_hint">Användarnamn eller e-post</string>
     <string name="password_edittext_hint">Lösenord</string>
     <string name="sign_in_button_text">Logga in</string>
     <string name="create_account_button_text">Skapa konto</string>
@@ -25,7 +25,8 @@
     <!--Strings for CreateUserActivity-->
     <string name="firstname_edittext_hint">Förnamn</string>
     <string name="lastname_edittext_hint">Efternamn</string>
-    <string name="email_edittext_hint">Email</string>
+    <string name="username_edittext_hint">Användarnamn</string>
+    <string name="email_edittext_hint">E-post</string>
     <string name="select_birthdate">Ange födelsedatum</string>
 
     <!--Strings for EventsMapActivity-->
@@ -43,6 +44,7 @@
     <string name="menu_item_delete_event">Ta bort</string>
     <string name="menu_item_attend_event">Jag kommer</string>
     <string name="menu_item_dont_attend_event">Jag kommer inte</string>
+    <string name="menu_item_navigate_to_event">Hitta till event</string>
 
     <!--Strings for CreateEventActivity-->
     <string name="create_event_edittext_hint">Namn på ditt event</string>
@@ -86,5 +88,8 @@
     <!--Strings for ResetPasswordActivity-->
     <string name="send_reset_password_email_button">Skicka mail</string>
     <string name="send_reset_password_email_info_text">Vi kommer att skicka ett mail till den här adressen med en länk du kan använda för att återställa ditt lösenord. Kolla din skräppost om du inte fått det efter ett tag.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

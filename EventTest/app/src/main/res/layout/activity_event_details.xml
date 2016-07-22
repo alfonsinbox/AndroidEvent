@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -11,77 +11,80 @@
             type="com.example.alfon.eventtest.Event" />
     </data>
 
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:elevation="4dp">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/event_details_image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:onClick="startCameraIntent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/no_image_banner" />
+
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:includeFontPadding="false"
-                        android:text="@{event.name}"
-                        android:textSize="@dimen/text_header_size"
-                        android:gravity="center"
-                        tools:text="Eventets namn"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:padding="@dimen/text_small_margin">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@{event.createdBy.fullName}"
-                        android:textSize="@dimen/text_sub_header_size"
-                        android:gravity="center"
-                        tools:text="Alfons Lange"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:paddingBottom="@dimen/text_small_margin"
+                            android:paddingTop="@dimen/text_small_margin"
+                            android:text="@{event.name}"
+                            android:textSize="@dimen/text_large_header_size"
+                            tools:text="Eventets namn" />
 
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/event_creator_full_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="@dimen/text_small_margin"
+                            android:text="@{event.createdBy.fullName}"
+                            android:textSize="@dimen/text_sub_header_size"
+                            tools:text="Alfons Lange" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_marginRight="@dimen/text_small_margin"
-                    android:gravity="center">
+                    </LinearLayout>
 
-                    <ImageButton
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:onClick="showPopup"
-                        android:background="?attr/selectableItemBackground"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_more_vert_24dp" />
+                        android:layout_marginRight="@dimen/text_small_margin"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:onClick="showPopup"
+                            android:src="@drawable/ic_more_vert_24dp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
-
-            </LinearLayout>
-
-        </android.support.v7.widget.Toolbar>
-
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -153,5 +156,5 @@
 
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
+    </RelativeLayout>
 </layout>

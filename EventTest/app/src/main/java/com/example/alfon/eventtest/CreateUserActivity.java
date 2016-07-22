@@ -2,7 +2,6 @@ package com.example.alfon.eventtest;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +19,6 @@ import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class CreateUserActivity extends AppCompatActivity {
 
@@ -70,10 +67,10 @@ public class CreateUserActivity extends AppCompatActivity {
                     }
                     System.out.println(response.getContent());
 
-                    String token = new Gson().fromJson(response.getContent(), JsonObject.class).get("token").getAsString();
-                    AuthUtilities.saveToken(token, activity);
+                    RefreshToken refreshToken = new Gson().fromJson(response.getContent(), RefreshToken.class);
+                    AuthUtilities.saveRefreshToken(refreshToken.token, activity);
 
-                    if (!AuthUtilities.getLocalToken(activity).equals("")) {
+                    if (!AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_REFRESH_TOKEN, activity).equals("")) {
                         Intent intent = new Intent(activity, ConfirmationInformationActivity.class);
                         startActivity(intent);
                         // Finish activity so you can't navigate back to it

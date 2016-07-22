@@ -74,6 +74,7 @@ public class MyNotificationsHandler extends NotificationsHandler {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setContentText(message)
                 .setContentIntent(contentIntent)
+                .setAutoCancel(true)
                 .build();
 
         NotificationManager notificationManager = (NotificationManager)

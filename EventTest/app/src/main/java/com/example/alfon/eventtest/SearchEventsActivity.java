@@ -2,13 +2,10 @@ package com.example.alfon.eventtest;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -21,18 +18,11 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class SearchEventsActivity extends AppCompatActivity {
 
@@ -50,6 +40,7 @@ public class SearchEventsActivity extends AppCompatActivity {
 
     String searchString;
     ListenableFuture<ServiceFilterResponse> eventListenableFuture;
+    ListenableFutureCreatedCallback listenableFutureCreatedCallback;
 
 
     @Override
@@ -60,7 +51,7 @@ public class SearchEventsActivity extends AppCompatActivity {
 
         authUtilities = new AuthUtilities();
         eventUtilities = new EventUtilities();
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
         searchString = "";
 
         editTextSearchBox = (EditText) findViewById(R.id.edittext_search_events);
@@ -94,50 +85,68 @@ public class SearchEventsActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void searchEvents(String query){
+    private void searchEvents(String query) {
         listViewEventSuggestions.setAdapter(null);
         searchingEventProgress.setVisibility(View.VISIBLE);
 
-        if(eventListenableFuture != null) {
+        System.out.println("NEW KEY PRESS");
+
+        if (listenableFutureCreatedCallback != null) {
+            System.out.println("CANCELED PREVIOUS REQUEST");
+            listenableFutureCreatedCallback.canceled = true;
+        }
+        if (eventListenableFuture != null) {
             eventListenableFuture.cancel(true);
         }
 
-        if(query.equals("")){
+        if (query.equals("")) {
             listViewEventSuggestions.setAdapter(null);
             searchingEventProgress.setVisibility(View.GONE);
             return;
         }
 
-        eventListenableFuture = EventUtilities.searchEventsFuture(activity, query, mClient);
-
-        Futures.addCallback(eventListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+        listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
             @Override
-            public void onSuccess(ServiceFilterResponse result) {
-                searchingEventProgress.setVisibility(View.GONE);
-                System.out.println("FUCKING SUCCESS!!!" + result.getContent());
-                Gson gson = new GsonBuilder().registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer()).create();
-                List<Event> eventSearchResults = gson.fromJson(result.getContent(), new TypeToken<List<Event>>() {
-                }.getType());
-                EventSearchAdapter eventSearchAdapter = new EventSearchAdapter(activity, R.layout.list_item_event_search, eventSearchResults);
-                listViewEventSuggestions.setAdapter(eventSearchAdapter);
-                listViewEventSuggestions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        selectedEvent = (Event) parent.getItemAtPosition(position);
-                        System.out.println(new Gson().toJson(selectedEvent));
-                        Intent intent = new Intent(activity, EventDetailsActivity.class);
-                        intent.putExtra("event", selectedEvent);
-                        startActivity(intent);
-                    }
-                });
-            }
+            public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                if (!this.canceled) {
 
-            @Override
-            public void onFailure(Throwable t) {
-                searchingEventProgress.setVisibility(View.GONE);
-                System.out.println("FUCKING FAILURE!!!");
+                    eventListenableFuture = listenableFuture;
+                    Futures.addCallback(eventListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                        @Override
+                        public void onSuccess(ServiceFilterResponse result) {
+
+                            searchingEventProgress.setVisibility(View.GONE);
+                            System.out.println("FUCKING SUCCESS!!!" + result.getContent());
+                            Gson gson = new GsonBuilder().registerTypeAdapter(Calendar.class, new IsoStringToCalendarSerializer()).create();
+                            List<Event> eventSearchResults = gson.fromJson(result.getContent(), new TypeToken<List<Event>>() {
+                            }.getType());
+                            EventSearchAdapter eventSearchAdapter = new EventSearchAdapter(activity, R.layout.list_item_event_search, eventSearchResults);
+                            listViewEventSuggestions.setAdapter(eventSearchAdapter);
+                            listViewEventSuggestions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    selectedEvent = (Event) parent.getItemAtPosition(position);
+                                    System.out.println(new Gson().toJson(selectedEvent));
+                                    Intent intent = new Intent(activity, EventDetailsActivity.class);
+                                    intent.putExtra("event", selectedEvent);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+
+                            searchingEventProgress.setVisibility(View.GONE);
+                            System.out.println("FUCKING FAILURE!!!");
+                        }
+                    });
+                }
             }
-        });
+        };
+
+        EventUtilities.searchEventsFuture(activity, query, mClient, listenableFutureCreatedCallback);
+
     }
 }
 
