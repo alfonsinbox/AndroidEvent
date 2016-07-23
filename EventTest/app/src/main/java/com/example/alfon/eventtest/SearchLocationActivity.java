@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -31,7 +32,7 @@ import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import java.util.List;
 import java.util.Locale;
 
-public class SearchLocationActivity extends AppCompatActivity {
+public class SearchLocationActivity extends AppCompatActivity implements CustomLocationProvider.LocationCallback {
 
     Activity activity;
 
@@ -52,12 +53,12 @@ public class SearchLocationActivity extends AppCompatActivity {
     android.location.Location userLocation;
     String latitude;
     String longitude;
+    CustomLocationProvider mLocationProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_location);
-
 
         activity = this;
 
@@ -120,46 +121,19 @@ public class SearchLocationActivity extends AppCompatActivity {
             }
         });
 
-        if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-            return;
-        }
+        mLocationProvider = new CustomLocationProvider(this, this);
+    }
 
-        try {
-            userLocation = LocationUtilities.getUserLocation(activity);
-        } catch (Exception e) {
-            userLocation = new android.location.Location("dummyprovider");
-            userLocation.setLatitude(0);
-            userLocation.setLongitude(0);
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLocationProvider.connect();
+    }
 
-        latitude = String.valueOf(userLocation.getLatitude());
-        longitude = String.valueOf(userLocation.getLongitude());
-
-        listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
-            @Override
-            public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
-                if (!this.canceled) {
-
-                    locationSuggestionsListenableFuture = listenableFuture;
-                    Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
-                        @Override
-                        public void onSuccess(ServiceFilterResponse result) {
-                            populateListsFromResponse(result.getContent());
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-
-                        }
-                    });
-                }
-            }
-        };
-
-        //Initial request, doesn't require a search query
-        LocationUtilities.getLocationSuggestionsFuture(activity, latitude,
-                longitude, mClient, listenableFutureCreatedCallback);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLocationProvider.disconnect();
     }
 
     public void returnSelectedLocation() {
@@ -235,7 +209,7 @@ public class SearchLocationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+            case GlobalApplication.PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -280,5 +254,40 @@ public class SearchLocationActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    @Override
+    public void handleNewLocation(android.location.Location location) {
+        userLocation = location;
+        Log.d("System.out", location.toString());
+        if (locationSuggestionsListenableFuture == null) {
+            latitude = String.valueOf(userLocation.getLatitude());
+            longitude = String.valueOf(userLocation.getLongitude());
+
+            listenableFutureCreatedCallback = new ListenableFutureCreatedCallback() {
+                @Override
+                public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
+                    if (!this.canceled) {
+
+                        locationSuggestionsListenableFuture = listenableFuture;
+                        Futures.addCallback(locationSuggestionsListenableFuture, new FutureCallback<ServiceFilterResponse>() {
+                            @Override
+                            public void onSuccess(ServiceFilterResponse result) {
+                                populateListsFromResponse(result.getContent());
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+
+                            }
+                        });
+                    }
+                }
+            };
+
+            //Initial request, doesn't require a search query
+            LocationUtilities.getLocationSuggestionsFuture(activity, latitude,
+                    longitude, mClient, listenableFutureCreatedCallback);
+        }
     }
 }

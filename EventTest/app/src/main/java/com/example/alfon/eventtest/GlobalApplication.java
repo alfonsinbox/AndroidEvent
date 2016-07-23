@@ -41,6 +41,7 @@ public class GlobalApplication extends Application {
     public static final String ACTION_TOKEN_CHECK_CALLBACK_FAILURE = "ActionTokenCheckCallbackFailure";
     public static final int REQUEST_CODE_CAMERA_INTENT_TAKE_PICTURE = 10;
     public static final int REQUEST_CODE_CAMERA_INTENT_CROP_PICTURE = Crop.REQUEST_CROP;//11;
+    public static final int PERMISSIONS_REQUEST_FINE_LOCATION = 100;
 
 
 
