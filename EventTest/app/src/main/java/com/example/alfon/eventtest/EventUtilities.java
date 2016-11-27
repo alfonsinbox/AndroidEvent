@@ -58,7 +58,6 @@ public class EventUtilities {
                 params.add(Pair.create("longitude", longitude));
                 params.add(Pair.create("within_radius", within_radius));
 
-
                 List<Pair<String, String>> headers = new ArrayList<>();
                 headers.add(Pair.create("X-ZUMO-AUTH", AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_ACCESS_TOKEN, activity)));
 

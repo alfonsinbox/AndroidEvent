@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -25,12 +26,13 @@ import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
-public class CreateLocationActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class CreateLocationActivity extends AppCompatActivity implements OnMapReadyCallback, CustomLocationProvider.LocationCallback {
 
     Activity activity;
     MobileServiceClient mClient;
 
     Location userLocation;
+    CustomLocationProvider mLocationProvider;
 
     LatLng selectedLatLng;
     String locationName;
@@ -43,10 +45,24 @@ public class CreateLocationActivity extends AppCompatActivity implements OnMapRe
         setContentView(R.layout.activity_create_location);
 
         activity = this;
-        mClient = ((GlobalApplication) this.getApplication()).getmClient();
+        mClient = GlobalApplication.getmClient();
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mLocationProvider = new CustomLocationProvider(this, this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLocationProvider.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLocationProvider.disconnect();
     }
 
     @Override
@@ -69,27 +85,10 @@ public class CreateLocationActivity extends AppCompatActivity implements OnMapRe
         });
 
         if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+            ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, GlobalApplication.PERMISSIONS_REQUEST_FINE_LOCATION);
             return;
         }
 
-        try {
-            userLocation = LocationUtilities.getUserLocation(activity);
-        } catch (Exception e) {
-            userLocation = new android.location.Location("dummyprovider");
-            userLocation.setLatitude(0);
-            userLocation.setLongitude(0);
-        }
-
-        // Show selected location on Map
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
-                .zoom(15)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     public void createLocation(View view) {
@@ -115,7 +114,6 @@ public class CreateLocationActivity extends AppCompatActivity implements OnMapRe
 
             new LocationUtilities().createLocation(activity, locationName, String.valueOf(selectedLatLng.latitude),
                     String.valueOf(selectedLatLng.longitude), mClient, locationCreatedResponseCallback);
-
         }
     }
 
@@ -123,33 +121,30 @@ public class CreateLocationActivity extends AppCompatActivity implements OnMapRe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case Globals.MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+            case GlobalApplication.PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    try {
-                        userLocation = LocationUtilities.getUserLocation(activity);
-                    } catch (Exception e) {
-                        userLocation = new android.location.Location("dummyprovider");
-                        userLocation.setLatitude(0);
-                        userLocation.setLongitude(0);
-                    }
-
-                    // Show selected location on Map
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to Mountain View
-                            .zoom(15)                   // Sets the zoom
-                            .bearing(0)                // Sets the orientation of the camera to east
-                            .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                            .build();                   // Creates a CameraPosition from the builder
-
-                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-                    break;
+                    mLocationProvider.connect();
                 }
+                break;
             }
-
         }
+    }
+
+    @Override
+    public void handleNewLocation(Location location) {
+        userLocation = location;
+        Log.d("System.out", location.toString());
+
+        // Show user's location on Map
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()))      // Sets the center of the map to user location
+                .zoom(15)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 }
