@@ -1,0 +1,36 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="main_menu_icon_size">24dp</dimen>
+    <item name="main_menu_alpha_not_focused" format="float" type="dimen">0.35</item>
+    <item name="main_menu_alpha_focused" format="float" type="dimen">1</item>
+
+    <dimen name="profile_picture_diameter">72dp</dimen>
+    <dimen name="profile_picture_radius">36dp</dimen>
+    <dimen name="thumbnail_profile_picture_diameter">48dp</dimen>
+    <dimen name="thumbnail_profile_picture_radius">24dp</dimen>
+
+    <dimen name="text_tiny_margin">4dp</dimen>
+    <dimen name="text_small_margin">8dp</dimen>
+    <dimen name="text_medium_margin">12dp</dimen>
+    <dimen name="text_large_margin">16dp</dimen>
+    <dimen name="text_large_header_size">34sp</dimen>
+    <dimen name="text_header_size">24sp</dimen>
+    <dimen name="text_sub_header_size">16sp</dimen>
+    <dimen name="edittext_normal_text_size">18sp</dimen>
+
+    <dimen name="fab_normal_dimen">56dp</dimen>
+    <dimen name="fab_normal_margin">16dp</dimen>
+
+    <dimen name="button_large_margin">36dp</dimen>
+    <dimen name="button_small_padding">12dp</dimen>
+    <dimen name="button_medium_padding">24dp</dimen>
+    <dimen name="button_large_padding">48dp</dimen>
+
+    <dimen name="gridview_events_border">1dp</dimen>
+
+    <dimen name="large_info_container_vertical_margin">128dp</dimen>
+
+</resources>

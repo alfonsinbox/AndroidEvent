@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name">Event Beta</string>
+
+    <!--Strings for MainActivity-->
+    <string name="title_activity_main">Map</string>
+    <string name="mainpage_navigate_profile">Profil</string>
+    <string name="mainpage_navigate_search">Sök</string>
+    <string name="mainpage_navigate_create_event">Skapa event</string>
+    <string name="mainpage_sign_out">Logga ut</string>
+    <string name="could_not_sign_out_toast">Kunde inte logga ut</string>
+
+    <!--Strings for SignInActivity-->
+    <string name="login_name_edittext_hint">Användarnamn eller e-post</string>
+    <string name="password_edittext_hint">Lösenord</string>
+    <string name="sign_in_button_text">Logga in</string>
+    <string name="create_account_button_text">Skapa konto</string>
+    <string name="could_not_sign_in_toast">Kunde inte logga in</string>
+    <string name="device_registered_push">Registrerade för push</string>
+    <string name="forgot_password_button_text">Jag har glömt mitt lösenord</string>
+
+    <!--Strings for UserOverviewActivity-->
+    <string name="user_interests_header">Intressen</string>
+    <string name="user_contacts_header">Kontakter</string>
+
+    <!--Strings for CreateUserActivity-->
+    <string name="firstname_edittext_hint">Förnamn</string>
+    <string name="lastname_edittext_hint">Efternamn</string>
+    <string name="username_edittext_hint">Användarnamn</string>
+    <string name="email_edittext_hint">E-post</string>
+    <string name="select_birthdate">Ange födelsedatum</string>
+
+    <!--Strings for EventsMapActivity-->
+    <string name="search_events_edittext_hint">Sök event</string>
+
+    <!--Strings for SelectLocationActivity-->
+    <string name="search_locations_edittext_hint">Sök platser</string>
+
+    <!--Strings for EventDetailsActivity-->
+    <string name="event_details_description">Beskrivning:</string>
+    <string name="event_details_time">Tid:</string>
+    <string name="event_details_location">Plats:</string>
+    <string name="menu_item_edit_event">Redigera</string>
+    <string name="menu_item_cancel_event">Ställ in</string>
+    <string name="menu_item_delete_event">Ta bort</string>
+    <string name="menu_item_attend_event">Jag kommer</string>
+    <string name="menu_item_dont_attend_event">Jag kommer inte</string>
+    <string name="menu_item_navigate_to_event">Hitta till event</string>
+
+    <!--Strings for CreateEventActivity-->
+    <string name="create_event_edittext_hint">Namn på ditt event</string>
+    <string name="event_begins_header">Börjar</string>
+    <string name="event_ends_header">Slutar</string>
+    <string name="event_location_header">Plats</string>
+    <string name="event_categories_header">Kategorier</string>
+    <string name="event_invitees_header">Inbjudna</string>
+    <string name="event_hosts_header">Värdar</string>
+    <string name="event_is_private_header">Privat</string>
+    <string name="create_event_button">Skapa</string>
+    <string name="event_description_header">Beskrivning</string>
+
+    <!--Strings for CreateLocationActivity-->
+    <string name="location_set_name_hint">Platsens namn</string>
+
+    <!--Strings for SearchLocationActivity-->
+    <string name="create_location_textview">+ Skapa plats</string>
+    <string name="existing_locations_header">Skapade platser</string>
+    <string name="google_locations_header">Google</string>
+
+    <!--String for SelectCategoriesActivity-->
+    <string name="search_categories_edittext_hint">Sök kategorier</string>
+
+    <!--String for SelectUsersActivity-->
+    <string name="search_users_edittext_hint">Sök personer</string>
+
+    <!--String for CreateDescriptionFragment-->
+    <string name="finished_button_text">Färdig</string>
+
+    <!--Strings for ConfirmationInformationActivity-->
+    <string name="confirm_account_information">Innan du kan fortsätta behöver du bekräfta ditt konto. Vi har skickat dig ett e-post med vidare instruktioner. Om du inte mottagit den efter ett tag, kolla din skräppost</string>
+    <string name="confirm_account_header">Nästan färdigt...</string>
+    <string name="continue_button_text">Jag har bekräftat kontot</string>
+
+    <!--Strings for CancelEventActivity-->
+    <string name="cancel_event_button_text">Ställ in event</string>
+    <string name="cancel_event_reason_hint">Varför ställer du in eventet?</string>
+    <string name="canceled_event_toast">Eventet inställt</string>
+
+    <!--Strings for ResetPasswordActivity-->
+    <string name="send_reset_password_email_button">Skicka mail</string>
+    <string name="send_reset_password_email_info_text">Vi kommer att skicka ett mail till den här adressen med en länk du kan använda för att återställa ditt lösenord. Kolla din skräppost om du inte fått det efter ett tag.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>

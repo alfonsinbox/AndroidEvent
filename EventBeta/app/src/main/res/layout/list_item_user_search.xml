@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/user_thumbnail_profile_picture"
+        android:layout_width="@dimen/thumbnail_profile_picture_diameter"
+        android:layout_height="@dimen/thumbnail_profile_picture_diameter"
+        android:layout_margin="@dimen/text_medium_margin"
+        android:src="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/user_full_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_header_size"
+        android:includeFontPadding="false"
+        android:layout_toRightOf="@+id/user_thumbnail_profile_picture"
+        android:layout_alignTop="@+id/user_thumbnail_profile_picture"
+        tools:text="Alfons Lange"/>
+
+    <TextView
+        android:id="@+id/user_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_full_name"
+        android:layout_alignLeft="@+id/user_full_name"
+        tools:text="Admin"/>
+
+    <CheckBox
+        android:id="@+id/user_is_selected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/text_medium_margin"
+        android:focusable="false"
+        android:clickable="false"/>
+
+</RelativeLayout>

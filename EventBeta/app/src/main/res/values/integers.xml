@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="main_menu_alpha_not_focused">128</integer>
+    <integer name="main_menu_alpha_focused">255</integer>
+</resources>
