@@ -157,11 +157,11 @@ public class UserUtilities {
     }
 
     public static class UploadProfilePictureTask extends AsyncTask<Void, Void, Boolean> {
-        private final Activity _activity;
+        private final Context _activity;
         private final Uri _imageUri;
         private final AsyncTaskCallback _asyncTaskCallback;
 
-        public UploadProfilePictureTask(Activity activity, Uri imageUri, AsyncTaskCallback asyncTaskCallback){
+        public UploadProfilePictureTask(Context activity, Uri imageUri, AsyncTaskCallback asyncTaskCallback){
             _activity = activity;
             _imageUri = imageUri;
             _asyncTaskCallback = asyncTaskCallback;
@@ -172,6 +172,7 @@ public class UserUtilities {
             String requestURL = "https://theeventapp.azurewebsites.net/api/user/picture/set?ZUMO-API-VERSION=2.0.0";
             String charset = "UTF-8";
             try {
+
                 MultipartUtility multipart = new MultipartUtility(_activity, requestURL, charset);
 
                 File image = FileUtilities.getImage(_imageUri);
@@ -191,6 +192,7 @@ public class UserUtilities {
                 e.printStackTrace();
             }
             return false;
+
         }
 
         @Override

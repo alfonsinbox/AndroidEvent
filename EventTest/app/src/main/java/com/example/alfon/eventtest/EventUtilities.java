@@ -45,11 +45,14 @@ public class EventUtilities {
 
     }
 
-    public static void getEventsForMap(final Context activity, final String latitude, final String longitude, final String within_radius, MobileServiceClient mClient, final ServiceFilterResponseCallback serviceFilterResponseCallback) {
+    public static void getEventsForMap(final Context activity, final String latitude, final String longitude, final String within_radius, final MobileServiceClient mClient, final ServiceFilterResponseCallback serviceFilterResponseCallback) {
 
-        TokenCheck tokenCheck = new TokenCheck(activity, mClient) {
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
-            public void onSuccess() {
+            public void onReceive(Context context, Intent intent) {
+                activity.unregisterReceiver(this);
+
                 List<Pair<String, String>> params = new ArrayList<>();
                 params.add(Pair.create("latitude", latitude));
                 params.add(Pair.create("longitude", longitude));
@@ -61,19 +64,21 @@ public class EventUtilities {
 
                 mClient.invokeApi("event/get", null, "POST", headers, params, serviceFilterResponseCallback);
             }
-
-            @Override
-            public void onFailure(Exception exception) {
-
-            }
         };
-        tokenCheck.checkToken();
+        IntentFilter intentFilter = new IntentFilter(GlobalApplication.ACTION_TOKEN_CHECK_CALLBACK_SUCCESS);
+        activity.registerReceiver(receiver, intentFilter);
+        Intent serviceIntent = new Intent(activity, TokenCheckService.class);
+        activity.startService(serviceIntent);
+
     }
 
-    public static void getEventDetails(final Context activity, final String eventId, MobileServiceClient mClient, final ServiceFilterResponseCallback serviceFilterResponseCallback) {
-        TokenCheck tokenCheck = new TokenCheck(activity, mClient) {
+    public static void getEventDetails(final Context activity, final String eventId, final MobileServiceClient mClient, final ServiceFilterResponseCallback serviceFilterResponseCallback) {
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
-            public void onSuccess() {
+            public void onReceive(Context context, Intent intent) {
+                activity.unregisterReceiver(this);
+
                 List<Pair<String, String>> params = new ArrayList<>();
                 params.add(Pair.create("event_id", eventId));
 
@@ -82,13 +87,11 @@ public class EventUtilities {
 
                 mClient.invokeApi("event/get", null, "POST", headers, params, serviceFilterResponseCallback);
             }
-
-            @Override
-            public void onFailure(Exception exception) {
-
-            }
         };
-        tokenCheck.checkToken();
+        IntentFilter intentFilter = new IntentFilter(GlobalApplication.ACTION_TOKEN_CHECK_CALLBACK_SUCCESS);
+        activity.registerReceiver(receiver, intentFilter);
+        Intent serviceIntent = new Intent(activity, TokenCheckService.class);
+        activity.startService(serviceIntent);
     }
 
     public static void searchEvents(final Context activity, final String query, MobileServiceClient mClient, final ServiceFilterResponseCallback serviceFilterResponseCallback) {

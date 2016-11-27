@@ -1,6 +1,14 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.util.Pair;
+
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
+import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,7 +40,7 @@ public class MultipartUtility {
      * @param charset
      * @throws IOException
      */
-    public MultipartUtility(Activity activity, String requestURL, String charset)
+    public MultipartUtility(final Context activity, String requestURL, String charset)
             throws IOException {
         this.charset = charset;
 
@@ -46,9 +54,10 @@ public class MultipartUtility {
         httpConn.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
         // TODO Must check token
-        //httpConn.setRequestProperty("X-ZUMO-AUTH", AuthUtilities.getLocalRefreshToken(activity));
 
+        httpConn.setRequestProperty("X-ZUMO-AUTH", AuthUtilities.getLocalToken(GlobalApplication.PREFERENCE_USER_ACCESS_TOKEN, activity));
         outputStream = httpConn.getOutputStream();
+
         writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
                 true);
     }

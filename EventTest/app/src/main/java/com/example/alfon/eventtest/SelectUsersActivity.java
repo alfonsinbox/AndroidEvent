@@ -92,7 +92,6 @@ public class SelectUsersActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(ListenableFuture<ServiceFilterResponse> listenableFuture) {
                         if(!this.canceled) {
-
                             usersListenableFuture = listenableFuture;
                             Futures.addCallback(usersListenableFuture, new FutureCallback<ServiceFilterResponse>() {
                                 @Override

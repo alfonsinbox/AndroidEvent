@@ -1,7 +1,10 @@
 package com.example.alfon.eventtest;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.databinding.BindingConversion;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
@@ -331,7 +334,22 @@ public class UserOverviewActivity extends AppCompatActivity implements MyEventsF
                 }
             }
         });
-        uploadProfilePictureTask.execute();
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                activity.unregisterReceiver(this);
+
+                /** This request uses the access token and must therefore
+                 *  be executed only when the token has been validated
+                 */
+                uploadProfilePictureTask.execute();
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(GlobalApplication.ACTION_TOKEN_CHECK_CALLBACK_SUCCESS);
+        activity.registerReceiver(receiver, intentFilter);
+        Intent serviceIntent = new Intent(activity, TokenCheckService.class);
+        activity.startService(serviceIntent);
     }
 
 }
